@@ -1,5 +1,7 @@
 #!/usr/bin/with-contenv bash
 
+# start
+
 # check for video files
 if find "$1" -type f  -iregex ".*/.*\.\(mkv\|mp4\|avi\)" | read; then
 	echo "CHECK: Finding video files for processing..."
