@@ -1,5 +1,7 @@
 #!/usr/bin/with-contenv bash
 
+set -e
+
 # start
 
 # check for video files
