@@ -14,7 +14,7 @@ settings () {
 
 echo ""
 echo "Configuration:"
-echo "Remove No nAudio Files: ENABLED"
+echo "Remove Non Audio Files: ENABLED"
 echo "Duplicate File CleanUp: ENABLED"
 if [ "${AudioVerification}" = TRUE ]; then
 	echo "Audio Verification: ENABLED"
