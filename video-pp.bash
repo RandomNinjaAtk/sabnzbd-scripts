@@ -6,8 +6,7 @@ set -e
 
 # check for video files
 if find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" | read; then
-	echo "CHECK: Finding video files for processing..."
-	echo "SUCCESS: Video files found"
+	sleep 0.1
 else
 	echo "ERROR: No video files found for processing"
 	exit 1
@@ -58,14 +57,21 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 		rm "$video" && echo "INFO: deleted: $video"
 	fi	
 done
-sleep 5
+
+# check for video files
+if find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" | read; then
+	sleep 0.1
+else
+	echo "ERROR: No video files found for processing"
+	exit 1
+fi
 
 # Manual run of Sickbeard MP4 Automator
 python3 /usr/local/sma/manual.py --config "$2" -i "$1" -nt
 
 # check for video files
 if find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\)" | read; then
-	echo "video-pp processing complete!"
+	echo "video processing complete!"
 else
 	echo "ERROR: No video files"
 	exit 1
