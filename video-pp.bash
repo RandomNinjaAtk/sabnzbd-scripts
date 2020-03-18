@@ -14,7 +14,8 @@ fi
 
 
 find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -r -d '' video; do
-	echo "Checking for \"${VIDEO_LANG}\" audio/subtitle tracks in: $video"
+	filename="$(basename "$video")"
+	echo "Checking for \"${VIDEO_LANG}\" audio/subtitle tracks in: $filename"
 	tracks=$(ffprobe -show_streams -print_format json -loglevel quiet "$video")
 	if [ ! -z "${tracks}" ]; then
 		allvideo=$(echo "${tracks}" | jq '. | .streams | .[] | select (.codec_type=="video") | .index')
@@ -34,27 +35,36 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 		echo "ERROR: ffprobe failed to read tracks and set values"
 		rm "$video" && echo "INFO: deleted: $video"
 	fi
-	
+			
 	if [ -z "${allvideocount}" ]; then
 		echo "ERROR: no video tracks found"
-		rm "$video" && echo "INFO: deleted: $video"
+		rm "$video" && echo "INFO: deleted: $filename"
 	fi
-	
+
 	if [ -z "${allaudiocount}" ]; then
 		echo "ERROR: no audio tracks found"
-		rm "$video" && echo "INFO: deleted: $video"
+		rm "$video" && echo "INFO: deleted: $filename"
 	fi	
-	
-	if [ ! -z "${setaudiocount}" ]; then
-		echo "${setaudiocount} \"${VIDEO_LANG}\" audio tracks found"
-	elif [ ! -z "${undaudiocount}" ]; then
-		echo "${undaudiocount} \"und\" audio tracks found"
-	elif [ ! -z "${setsubcount}" ]; then
-		echo "${setsubcount} \"${VIDEO_LANG}\" subtitle tracks found"
-	else
-		echo "ERROR: no \"${VIDEO_LANG}\" audio/subtitle tracks found"
-		rm "$video" && echo "INFO: deleted: $video"
-	fi	
+
+	if [ -f "$video"]; then	
+		if [ ! -z "${setaudiocount}" ]; then
+			echo "${setaudiocount} \"${VIDEO_LANG}\" audio tracks found"
+			if [ ! -z "${setsubcount}" ]; then
+				echo "${setsubcount} \"${VIDEO_LANG}\" subtitle tracks found"
+			fi
+		elif [ ! -z "${undaudiocount}" ]; then
+			echo "${undaudiocount} \"und\" audio tracks found"
+			if [ ! -z "${setsubcount}" ]; then
+				echo "${setsubcount} \"${VIDEO_LANG}\" subtitle tracks found"
+			fi
+		elif [ ! -z "${setsubcount}" ]; then
+			echo "${allaudiocount} Audio Tracks Found"
+			echo "${setsubcount} \"${VIDEO_LANG}\" subtitle tracks found"
+		else
+			echo "ERROR: no \"${VIDEO_LANG}\" audio/subtitle tracks found"
+			rm "$video" && echo "INFO: deleted: $video"
+		fi
+	fi
 done
 
 # check for video files
