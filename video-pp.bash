@@ -69,17 +69,18 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 			rm "$video" && echo "INFO: deleted: $filename"
 		fi
 	fi
-
-	if [ -f "$video" ]; then
-		echo ""
-		echo "Begin processing with Sickbeard MP4 Automator..."
-		echo ""
-		# Manual run of Sickbeard MP4 Automator
-		if python3 /usr/local/sma/manual.py --config "$2" -i "$video" -nt; then
-			echo "Processing complete for: ${filename}!"
-		else
-			echo "ERROR: Sickbeard MP4 Automator Processing Error"
-			rm "$video" && echo "INFO: deleted: $filename"
+	if [ ${VIDEO_SMA} = TRUE]; then
+		if [ -f "$video" ]; then
+			echo ""
+			echo "Begin processing with Sickbeard MP4 Automator..."
+			echo ""
+			# Manual run of Sickbeard MP4 Automator
+			if python3 /usr/local/sma/manual.py --config "$2" -i "$video" -nt; then
+				echo "Processing complete for: ${filename}!"
+			else
+				echo "ERROR: Sickbeard MP4 Automator Processing Error"
+				rm "$video" && echo "INFO: deleted: $filename"
+			fi
 		fi
 	fi
 	echo "===================================================="
