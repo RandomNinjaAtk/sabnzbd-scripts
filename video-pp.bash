@@ -4,7 +4,7 @@ set -e
 
 # start
 
-echo "Video Language setting: ${VideoLanguage}"
+echo "Video Language setting: ${VIDEO_LANG}"
 sleep 5
 
 # check for video files
