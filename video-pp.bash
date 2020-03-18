@@ -23,36 +23,32 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 	
 	if [ ! -z "${allvideo}" ]; then
 		echo "video tracks found"
+	else
+		echo "ERROR: no video tracks found"
+		rm "$video" && echo "INFO: deleted: $video"
 	fi
 	
 	if [ ! -z "${allaudio}" ]; then
 		echo "audio tracks found"
+	else
+		echo "ERROR: no audio tracks found"
+		rm "$video" && echo "INFO: deleted: $video"
 	fi
 	
 	if [ ! -z "${allsub}" ]; then
 		echo "subtitles tracks found"
 	fi
 	
-	if [ -z "${setaudio}" ]; then
+	if [ ! -z "${setaudio}" ]; then
 		echo "${VIDEO_LANG} audio tracks found, id: ${setaudio}"
-	fi
-	
-	if [ ! -z "${undaudio}" ]; then
+	elif [ ! -z "${undaudio}" ]; then
 		echo "und audio tracks found, id: ${undaudio}"
-	fi
-	
-	if [ ! -z "${nonperfaudio}" ]; then
-		echo "non ${VIDEO_LANG} audio tracks found, id: ${nonperfaudio}"
-	fi
-	
-	if [ ! -z "${perfsub}" ]; then
+	elif [ -z "${perfsub}" ]; then
 		echo "${VIDEO_LANG} audio tracks found, id: ${perfsub}"
-	fi
-	
-	if [ ! -z "${nonperfsub}" ]; then
-		echo "${VIDEO_LANG} audio tracks found, id: ${nonperfsub}"
-	fi
-	
+	else
+		echo "ERROR: no ${VIDEO_LANG} audio/subtitle tracks found"
+		rm "$video" && echo "INFO: deleted: $video"
+	fi	
 done
 sleep 5
 
