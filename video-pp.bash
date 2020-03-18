@@ -16,6 +16,7 @@ fi
 
 find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -r -d '' video; do
 	tracks=$(ffprobe -show_streams -print_format json -loglevel quiet "$video")
+	echo "${tracks}"
 	if [ ! -z "${tracks}" ]; then
 		allvideo=$(echo "${tracks}" | jq '.streams | .[] | select (.codec_type=="video") | .index')
 		allaudio=$(echo "${tracks}" | jq '.streams | .[] | select (.codec_type=="audio") | .index')
