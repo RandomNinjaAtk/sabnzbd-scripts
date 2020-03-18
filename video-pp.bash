@@ -42,7 +42,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 	if [ ! -z "${setaudio}" ]; then
 		echo "\"${VIDEO_LANG}\" audio tracks found"
 	elif [ ! -z "${undaudio}" ]; then
-		echo "\"und\" audio tracks found, id: ${undaudio}"
+		echo "\"und\" audio tracks found"
 	elif [ -z "${setsub}" ]; then
 		echo "\"${VIDEO_LANG}\" subtitle tracks found"
 	else
