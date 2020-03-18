@@ -4,6 +4,8 @@ set -e
 
 # start
 
+echo "Language setting: ${language}"
+
 # check for video files
 if find "$1" -type f  -iregex ".*/.*\.\(mkv\|mp4\|avi\)" | read; then
 	echo "CHECK: Finding video files for processing..."
