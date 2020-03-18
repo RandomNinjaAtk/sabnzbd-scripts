@@ -12,10 +12,12 @@ else
 	exit 1
 fi
 
-
+filecount=$(find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" | wc -l)
+echo "Processing ${filecount} video files..."
 find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -r -d '' video; do
 	filename="$(basename "$video")"
-	echo "Checking for \"${VIDEO_LANG}\" audio/subtitle tracks in: $filename"
+	echo "Begin processing: $filename"
+	echo "Checking for \"${VIDEO_LANG}\" audio/subtitle tracks"
 	tracks=$(ffprobe -show_streams -print_format json -loglevel quiet "$video")
 	if [ ! -z "${tracks}" ]; then
 		allvideo=$(echo "${tracks}" | jq '. | .streams | .[] | select (.codec_type=="video") | .index')
@@ -65,24 +67,25 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 			rm "$video" && echo "INFO: deleted: $filename"
 		fi
 	fi
+	echo ""
+	echo ""
+	if [ -f "$video" ]; then
+		echo "Begin processing with Sickbeard MP4 Automator..."
+		# Manual run of Sickbeard MP4 Automator
+		python3 /usr/local/sma/manual.py --config "$2" -i "$video" -nt
+	fi
+	echo ""
+	echo ""
+	echo "Processing complete for: ${filename}!"
+	echo ""
+	echo ""
 done
 
 # check for video files
-if find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" | read; then
-	sleep 0.1
-else
-	echo "ERROR: No video files found for processing"
-	exit 1
-fi
-
-# Manual run of Sickbeard MP4 Automator
-python3 /usr/local/sma/manual.py --config "$2" -i "$1" -nt
-
-# check for video files
 if find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\)" | read; then
-	echo "video processing complete!"
+	echo "Post Processing Complete!"
 else
-	echo "ERROR: No video files"
+	echo "ERROR: No video files found..."
 	exit 1
 fi
 
