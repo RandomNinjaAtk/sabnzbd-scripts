@@ -18,33 +18,39 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 	tracks=$(ffprobe -show_streams -print_format json -loglevel quiet "$video")
 	if [ ! -z "${tracks}" ]; then
 		allvideo=$(echo "${tracks}" | jq '. | .streams | .[] | select (.codec_type=="video") | .index')
+		allvideocount=$(echo "${allvideo}" | wc -l)
 		allaudio=$(echo "${tracks}" | jq '. | .streams | .[] | select (.codec_type=="audio") | .index')
+		allaudiocount=$(echo "${allaudio}" | wc -l)
 		allsub=$(echo "${tracks}" | jq '. | .streams | .[] | select (.codec_type=="subtitle") | .index')	
+		allsubcount=$(echo "${allsub}" | wc -l)
 		setaudio=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"audio\") | select(.tags.language==\"${VIDEO_LANG}\") | .index")
+		setaudiocount=$(echo "${setaudio}" | wc -l)
 		undaudio=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"audio\") | select(.tags.language==\"und\") | .index")
+		undaudiocount=$(echo "${undaudio}" | wc -l)
 		nonundaudio=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"audio\") | select(.tags.language!=\"und\") | .index")
 		setsub=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"subtitle\") | select(.tags.language==\"${VIDEO_LANG}\") | .index")
+		setsubcount=$(echo "${setsub}" | wc -l)
 	else
 		echo "ERROR: ffprobe failed to read tracks and set values"
 		rm "$video" && echo "INFO: deleted: $video"
 	fi
 	
-	if [ -z "${allvideo}" ]; then
+	if [ -z "${allvideocount}" ]; then
 		echo "ERROR: no video tracks found"
 		rm "$video" && echo "INFO: deleted: $video"
 	fi
 	
-	if [ -z "${allaudio}" ]; then
+	if [ -z "${allaudiocount}" ]; then
 		echo "ERROR: no audio tracks found"
 		rm "$video" && echo "INFO: deleted: $video"
 	fi	
 	
-	if [ ! -z "${setaudio}" ]; then
-		echo "\"${VIDEO_LANG}\" audio tracks found"
-	elif [ ! -z "${undaudio}" ]; then
-		echo "\"und\" audio tracks found"
-	elif [ -z "${setsub}" ]; then
-		echo "\"${VIDEO_LANG}\" subtitle tracks found"
+	if [ ! -z "${setaudiocount}" ]; then
+		echo "${setaudiocount} \"${VIDEO_LANG}\" audio tracks found"
+	elif [ ! -z "${undaudiocount}" ]; then
+		echo "${undaudiocount} \"und\" audio tracks found"
+	elif [ ! -z "${setsubcount}" ]; then
+		echo "${setsubcount} \"${VIDEO_LANG}\" subtitle tracks found"
 	else
 		echo "ERROR: no \"${VIDEO_LANG}\" audio/subtitle tracks found"
 		rm "$video" && echo "INFO: deleted: $video"
