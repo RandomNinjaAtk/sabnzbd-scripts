@@ -62,7 +62,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 			echo "${setsubcount} \"${VIDEO_LANG}\" subtitle tracks found"
 		else
 			echo "ERROR: no \"${VIDEO_LANG}\" audio/subtitle tracks found"
-			rm "$video" && echo "INFO: deleted: $video"
+			rm "$video" && echo "INFO: deleted: $filename"
 		fi
 	fi
 done
