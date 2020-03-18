@@ -6,7 +6,7 @@ set -e
 
 find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -r -d '' video; do
 	tracks=$(mkvmerge -J "$video")
-	if [ -z "${tracks}" ]; then
+	if [ ! -z "${tracks}" ]; then
 		allvideo=$(echo "${tracks}" | jq ".tracks[] | select(.type==\"video\") | .id")
 		allaudio=$(echo "${tracks}" | jq ".tracks[] | select(.type==\"audio\") | .id")
 		allsub=$(echo "${tracks}" | jq ".tracks[] | select(.type==\"subtitles\") | .id")		
@@ -21,15 +21,15 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 		rm "$video" && echo "INFO: deleted: $video"
 	fi
 	
-	if [ -z "${allvideo}" ]; then
+	if [ ! -z "${allvideo}" ]; then
 		echo "video tracks found"
 	fi
 	
-	if [ -z "${allaudio}" ]; then
+	if [ ! -z "${allaudio}" ]; then
 		echo "audio tracks found"
 	fi
 	
-	if [ -z "${allsub}" ]; then
+	if [ ! -z "${allsub}" ]; then
 		echo "subtitles tracks found"
 	fi
 	
@@ -37,19 +37,19 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 		echo "${VIDEO_LANG} audio tracks found, id: ${setaudio}"
 	fi
 	
-	if [ -z "${undaudio}" ]; then
+	if [ ! -z "${undaudio}" ]; then
 		echo "und audio tracks found, id: ${undaudio}"
 	fi
 	
-	if [ -z "${nonperfaudio}" ]; then
+	if [ ! -z "${nonperfaudio}" ]; then
 		echo "non ${VIDEO_LANG} audio tracks found, id: ${nonperfaudio}"
 	fi
 	
-	if [ -z "${perfsub}" ]; then
+	if [ ! -z "${perfsub}" ]; then
 		echo "${VIDEO_LANG} audio tracks found, id: ${perfsub}"
 	fi
 	
-	if [ -z "${nonperfsub}" ]; then
+	if [ ! -z "${nonperfsub}" ]; then
 		echo "${VIDEO_LANG} audio tracks found, id: ${nonperfsub}"
 	fi
 	
