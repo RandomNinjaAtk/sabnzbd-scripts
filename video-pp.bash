@@ -16,15 +16,14 @@ fi
 
 find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -r -d '' video; do
 	tracks=$(ffprobe -show_streams -print_format json -loglevel quiet "$video")
-	echo "${tracks}"
 	if [ ! -z "${tracks}" ]; then
-		allvideo=$(echo "${tracks}" | jq '.streams | .[] | select (.codec_type=="video") | .index')
-		allaudio=$(echo "${tracks}" | jq '.streams | .[] | select (.codec_type=="audio") | .index')
-		allsub=$(echo "${tracks}" | jq '.streams | .[] | select (.codec_type=="subtitle") | .index')	
-		setaudio=$(echo "${tracks}" | jq ".streams | .[] | select(.codec_type=="audio") | select(.tags.language==\"${VIDEO_LANG}\") | .index")
-		undaudio=$(echo "${tracks}" | jq ".streams | .[] | select(.codec_type=="audio") | select(.tags.language==\"und\") | .index")
-		nonundaudio=$(echo "${tracks}" | jq ".streams | .[] | select(.codec_type=="audio") | select(.tags.language!=\"und\") | .index")
-		setsub=$(echo "${tracks}" | jq ".streams | .[] | select(.codec_type=="subtitle") | select(.tags.language==\"${VIDEO_LANG}\") | .index")
+		allvideo=$(echo "${tracks}" | jq '. | .streams | .[] | select (.codec_type=="video") | .index')
+		allaudio=$(echo "${tracks}" | jq '. | .streams | .[] | select (.codec_type=="audio") | .index')
+		allsub=$(echo "${tracks}" | jq '. | .streams | .[] | select (.codec_type=="subtitle") | .index')	
+		setaudio=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"audio\") | select(.tags.language==\"${VIDEO_LANG}\") | .index")
+		undaudio=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"audio\") | select(.tags.language==\"und\") | .index")
+		nonundaudio=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"audio\") | select(.tags.language!=\"und\") | .index")
+		setsub=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"subtitle\") | select(.tags.language==\"${VIDEO_LANG}\") | .index")
 	else
 		echo "ERROR: ffprobe failed to read tracks and set values"
 		rm "$video" && echo "INFO: deleted: $video"
