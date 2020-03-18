@@ -4,7 +4,8 @@ set -e
 
 # start
 
-echo "Language setting: ${sonarr-language}"
+echo "Sonarr Language setting: ${sonarr-language}"
+echo "Radarr Language setting: ${radarr-language}"
 sleep 5
 
 # check for video files
