@@ -46,7 +46,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 		rm "$video" && echo "INFO: deleted: $filename"
 	fi	
 
-	if [ -f "$video"]; then	
+	if [ -f "$video" ]; then	
 		if [ ! -z "${setaudiocount}" ]; then
 			echo "${setaudiocount} \"${VIDEO_LANG}\" audio tracks found"
 			if [ ! -z "${setsubcount}" ]; then
