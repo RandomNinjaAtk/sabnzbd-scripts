@@ -1,22 +1,12 @@
-#!/bin/bash
-#######################################
-#        Audio Post-Processing        #
-#             Bash Script             #
-#######################################
-#=============REQUIREMENTS=============
-#         flac, mp3val, ffmpeg        #
-#============CONFIGURATION=============
-RemoveNonAudioFiles="TRUE" # TURE = ENABLED, Deletes non FLAC/M4A/MP3/OPUS/OGG files
-DuplicateFileCleanUp="TRUE" # TRUE = ENABLED, Deletes duplicate files
-AudioVerification="TRUE" # TRUE = ENABLED, Verifies FLAC/MP3 files for errors (fixes MP3's, deletes bad FLAC files)
-Convert="FALSE" # TRUE = ENABLED, Only converts lossless FLAC files
-ConversionFormat="FLAC" # SET TO: OPUS or AAC or MP3 or ALAC or FLAC - converts lossless FLAC files to set format
-ConversionBitrate="320" # Set to desired bitrate when converting to OPUS/AAC/MP3 format types
-ReplaygainTagging="TRUE" # TRUE = ENABLED, adds replaygain tags for compatible players (FLAC ONLY)
-BeetsProcessing="TRUE" # TRUE = ENABLED :: Match with beets
-BeetsFallbackToLidarr="TRUE" # TRUE = ENABLED :: If beets cannot match, allow lidarr to attempt match and import, if disabled, download will be marked as failed
-DetectNonSplitAlubms="TRUE" # TRUE = ENABLED :: Uses "MaxFileSize" to detect and mark download as failed if detected
-MaxFileSize="150M" # M = MB, G = GB :: Set size threshold for detecting single file albums
+#!/usr/bin/with-contenv bash
+
+# SETTINGS
+AudioVerification="${AUDIO_VERIFY}" # TRUE = ENABLED, Verifies FLAC/MP3 files for errors (fixes MP3's, deletes bad FLAC files)
+ConversionFormat="${AUDIO_FORMAT}" # SET TO: OPUS or AAC or MP3 or ALAC or FLAC - converts lossless FLAC files to set format
+ConversionBitrate="${AUDIO_BITRATE}" # Set to desired bitrate when converting to OPUS/AAC/MP3 format types
+ReplaygainTagging="${AUDIO_REPLAYGAIN}" # TRUE = ENABLED, adds replaygain tags for compatible players (FLAC ONLY)
+DetectNonSplitAlubms="${AUDIO_DSFA}" # TRUE = ENABLED :: Uses "MaxFileSize" to detect and mark download as failed if detected
+MaxFileSize="${AUDIO_DSFAS}" # M = MB, G = GB :: Set size threshold for detecting single file albums
 
 #============FUNCTIONS============
 
@@ -24,68 +14,25 @@ settings () {
 
 echo ""
 echo "Configuration:"
-if [ "${RemoveNonAudioFiles}" = TRUE ]; then
-	echo "RemoveNonAudioFiles: ENABLED"
-else
-	echo "RemoveNonAudioFiles: DISABLED"
-fi
-
-if [ "${DuplicateFileCleanUp}" = TRUE ]; then
-	echo "DuplicateFileCleanUp: ENABLED"
-else
-	echo "DuplicateFileCleanUp: DISABLED"
-fi
-
+echo "Remove No nAudio Files: ENABLED"
+echo "Duplicate File CleanUp: ENABLED"
 if [ "${AudioVerification}" = TRUE ]; then
-	echo "AudioVerification: ENABLED"
+	echo "Audio Verification: ENABLED"
 else
-	echo "AudioVerification: DISABLED"
+	echo "Audio Verification: DISABLED"
 fi
-
-if [ "${Convert}" = TRUE ]; then
-	echo "Convert: ENABLED"
-	echo "Convert Format: $ConversionFormat"
-	if [ "${ConversionFormat}" = FLAC ]; then
-		echo "Bitrate: lossless"
-	elif [ "${ConversionFormat}" = ALAC ]; then
-		echo "Bitrate: lossless"
-	else
-		echo "Conversion Bitrate: ${ConversionBitrate}k"
-	fi
+echo "Format: $ConversionFormat"
+if [ "${ConversionFormat}" = FLAC ]; then
+	echo "Bitrate: lossless"
+	echo "Replaygain Tagging: ENABLED"
+elif [ "${ConversionFormat}" = ALAC ]; then
+	echo "Bitrate: lossless"
 else
-	echo "Convert: DISABLED"
+	echo "Conversion Bitrate: ${ConversionBitrate}k"
 fi
-
-if [ "${Convert}" = TRUE ]; then
-	if [ "${ConversionFormat}" = FLAC ]; then
-		if [ "${ReplaygainTagging}" = TRUE ]; then
-			echo "ReplaygainTagging: ENABLED"
-		else
-			echo "ReplaygainTagging: DISABLED"
-		fi
-	fi
-else
-	if [ "${ReplaygainTagging}" = TRUE ]; then
-		echo "ReplaygainTagging: ENABLED"
-	else
-		echo "ReplaygainTagging: DISABLED"
-	fi
-fi
-
-if [ "${BeetsProcessing}" = TRUE ]; then
-	echo "BeetsProcessing: ENABLED"
-	if [ "${BeetsFallbackToLidarr}" = TRUE ]; then
-		echo "BeetsFallbackToLidarr: ENABLED" 
-	else
-		echo "BeetsFallbackToLidarr: DISABLED" 
-	fi
-else
-	echo "BeetsProcessing: DISABLED"
-fi
-
 if [ "${DetectNonSplitAlubms}" = TRUE ]; then
-	echo "DetectNonSplitAlubms: ENABLED"
-	echo "MaxFileSize: $MaxFileSize" 
+	echo "Detect Non Split Alubms: ENABLED"
+	echo "Max File Size: $MaxFileSize" 
 else
 	echo "DetectNonSplitAlubms: DISABLED"
 fi
@@ -198,6 +145,11 @@ conversion () {
 		extension="opus"
 		targetbitrate="${bitrate}k"
 	fi
+	if [ "${ConversionFormat}" = FDK-AAC ]; then
+		options="-acodec libfdk_aac -ab ${bitrate}k -movflags faststart"
+		extension="m4a"
+		targetbitrate="${bitrate}k"
+	fi
 	if [ "${ConversionFormat}" = AAC ]; then
 		options="-acodec aac -ab ${bitrate}k -movflags faststart"
 		extension="m4a"
@@ -255,63 +207,13 @@ replaygain () {
 	fi
 }
 
-beets () {
-	echo ""
-	trackcount=$(find "$1" -type f -iregex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" | wc -l)
-	echo "Matching $trackcount tracks with Beets"
-	if [ -f /config/scripts/beets/library.blb ]; then
-		rm /config/scripts/beets/library.blb
-		sleep 0.1
-	fi
-	if [ -f /config/scripts/beets/beets.log ]; then 
-		rm /config/scripts/beets/beets.log
-		sleep 0.1
-	fi
-	
-	touch "$1/beets-match"
-	sleep 0.1
-	
-	if find "$1" -type f -iregex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" | read; then
-		beet -c /config/scripts/beets/config.yaml -d "$1" import -q "$1" > /dev/null
-		if find "$1" -type f -iregex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" -newer "$1/beets-match" | read; then
-			echo "SUCCESS: Matched with beets!"
-		else
-			if [ "${BeetsFallbackToLidarr}" = TRUE ]; then
-				echo "ERROR: Unable to match using beets, fallback to lidarr import matching..."
-			else
-				rm -rf "$1"/* 
-				echo "ERROR: Unable to match using beets to a musicbrainz release, marking download as failed..." && exit 1
-			fi
-		fi	
-	fi
-	
-	if [ -f "$1/beets-match" ]; then 
-		rm "$1/beets-match"
-		sleep 0.1
-	fi
-}
 
 #============START SCRIPT============
 
 settings "$1"
-
-if [ "${RemoveNonAudioFiles}" = TRUE ]; then
-	clean "$1"
-else
-	echo "CLEANING DISABLED"
-fi
-
-if [ "${DuplicateFileCleanUp}" = TRUE ]; then
-	duplicatefilecleanup "$1"
-else
-	echo "DUPLICATE CLEANUP DISABLED"
-fi
-
-if [ "${DetectNonSplitAlubms}" = TRUE ]; then
-	detectsinglefilealbums "$1"
-else
-	echo "NON-SPLIT ABLUM DETECTION DISABLED"
-fi
+clean "$1"
+duplicatefilecleanup "$1"
+detectsinglefilealbums "$1"
 
 if [ "${AudioVerification}" = TRUE ]; then
 	verify "$1"
@@ -319,17 +221,7 @@ else
 	echo "AUDIO VERFICATION DISABLED"
 fi
 
-if [ "${BeetsProcessing}" = TRUE ]; then
-	beets "$1"
-else
-	echo "BEETS PROCESSING DISABLED"
-fi
-
-if [ "${Convert}" = TRUE ];	then
-	conversion "$1"
-else
-	echo "CONVERSION DISABLED"
-fi
+conversion "$1"
 
 if [ "${ReplaygainTagging}" = TRUE ]; then
 	replaygain "$1"
