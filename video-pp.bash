@@ -15,6 +15,8 @@ fi
 filecount=$(find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" | wc -l)
 echo "Processing ${filecount} video files..."
 find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -r -d '' video; do
+	echo ""
+	echo "===================================================="
 	filename="$(basename "$video")"
 	echo "Begin processing: $filename"
 	echo "Checking for \"${VIDEO_LANG}\" audio/subtitle tracks"
@@ -67,18 +69,20 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 			rm "$video" && echo "INFO: deleted: $filename"
 		fi
 	fi
-	echo ""
-	echo ""
+
 	if [ -f "$video" ]; then
+		echo ""
 		echo "Begin processing with Sickbeard MP4 Automator..."
+		echo ""
 		# Manual run of Sickbeard MP4 Automator
-		python3 /usr/local/sma/manual.py --config "$2" -i "$video" -nt
+		if python3 /usr/local/sma/manual.py --config "$2" -i "$video" -nt; then
+			echo "Processing complete for: ${filename}!"
+		else
+			echo "ERROR: Sickbeard MP4 Automator Processing Error"
+			rm "$video" && echo "INFO: deleted: $filename"
+		fi
 	fi
-	echo ""
-	echo ""
-	echo "Processing complete for: ${filename}!"
-	echo ""
-	echo ""
+	echo "===================================================="
 done
 
 # check for video files
