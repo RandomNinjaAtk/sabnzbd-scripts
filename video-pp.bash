@@ -69,7 +69,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 			rm "$video" && echo "INFO: deleted: $filename"
 		fi
 	fi
-	if [ ${VIDEO_SMA} = TRUE]; then
+	if [ ${VIDEO_SMA} = TRUE ]; then
 		if [ -f "$video" ]; then
 			echo ""
 			echo "Begin processing with Sickbeard MP4 Automator..."
