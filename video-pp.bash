@@ -14,6 +14,7 @@ fi
 
 
 find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -r -d '' video; do
+	echo "Checking for \"${VIDEO_LANG}\" audio/subtitle tracks in: $video"
 	tracks=$(ffprobe -show_streams -print_format json -loglevel quiet "$video")
 	if [ ! -z "${tracks}" ]; then
 		allvideo=$(echo "${tracks}" | jq '. | .streams | .[] | select (.codec_type=="video") | .index')
@@ -28,32 +29,24 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 		rm "$video" && echo "INFO: deleted: $video"
 	fi
 	
-	if [ ! -z "${allvideo}" ]; then
-		echo "video tracks found"
-	else
+	if [ -z "${allvideo}" ]; then
 		echo "ERROR: no video tracks found"
 		rm "$video" && echo "INFO: deleted: $video"
 	fi
 	
-	if [ ! -z "${allaudio}" ]; then
-		echo "audio tracks found"
-	else
+	if [ -z "${allaudio}" ]; then
 		echo "ERROR: no audio tracks found"
 		rm "$video" && echo "INFO: deleted: $video"
-	fi
-	
-	if [ ! -z "${allsub}" ]; then
-		echo "subtitles tracks found"
-	fi
+	fi	
 	
 	if [ ! -z "${setaudio}" ]; then
-		echo "${VIDEO_LANG} audio tracks found, id: ${setaudio}"
+		echo "\"${VIDEO_LANG}\" audio tracks found"
 	elif [ ! -z "${undaudio}" ]; then
-		echo "und audio tracks found, id: ${undaudio}"
+		echo "\"und\" audio tracks found, id: ${undaudio}"
 	elif [ -z "${setsub}" ]; then
-		echo "${VIDEO_LANG} audio tracks found, id: ${setsub}"
+		echo "\"${VIDEO_LANG}\" subtitle tracks found"
 	else
-		echo "ERROR: no ${VIDEO_LANG} audio/subtitle tracks found"
+		echo "ERROR: no \"${VIDEO_LANG}\" audio/subtitle tracks found"
 		rm "$video" && echo "INFO: deleted: $video"
 	fi	
 done
