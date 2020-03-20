@@ -12,8 +12,7 @@ set -o pipefail
 bash /usr/local/sabnzbd-scripts/video-pp.bash "$1" "/config/scripts/configs/sonarr-pp.ini" | tee -a "/config/scripts/logs/sonarr-pp.log"
 
 if [ $? = 0 ]; then
-	echo $?
 	exit 0 
 else
-	exit 1
+	exit $?
 fi
