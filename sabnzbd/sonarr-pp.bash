@@ -1,7 +1,5 @@
 #!/usr/bin/with-contenv bash
 
-set -e
-
 # start
 
 # Create log
@@ -10,6 +8,12 @@ if [ ! -f "/config/scripts/logs/sonarr-pp.log" ]; then
 	chmod 0666 "/config/scripts/logs/sonarr-pp.log"
 fi
 
+set -o pipefail
 bash /usr/local/sabnzbd-scripts/video-pp.bash "$1" "/config/scripts/configs/sonarr-pp.ini" | tee -a "/config/scripts/logs/sonarr-pp.log"
 
-exit 0 
+if [ $? = 0 ]; then
+	echo $?
+	exit 0 
+else
+	exit 1
+fi
