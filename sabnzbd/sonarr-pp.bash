@@ -10,6 +10,6 @@ if [ ! -f "/config/scripts/logs/sonarr-pp.log" ]; then
 	chmod 0666 "/config/scripts/logs/sonarr-pp.log"
 fi
 
-bash /usr/local/sabnzbd-scripts/video-pp.bash "$1" "/config/scripts/configs/sonarr-pp.ini" 2>&1 | tee -a "/config/scripts/logs/sonarr-pp.log"
+bash /usr/local/sabnzbd-scripts/video-pp.bash "$1" "/config/scripts/configs/sonarr-pp.ini" | tee -a "/config/scripts/logs/sonarr-pp.log"
 
 exit 0 
