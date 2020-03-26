@@ -18,7 +18,7 @@ fi
 # Execute on new downloads
 cd /config/scripts
 
-timeout --foreground 1m python Deobfuscate.py
+timeout --foreground 1m python Deobfuscate.py "$@"
 
 bash /usr/local/sabnzbd-scripts/video-pp.bash "$1" "/usr/local/sma/config/autoProcess.ini"
 
