@@ -7,7 +7,7 @@ ConversionBitrate="${AUDIO_BITRATE}" # Set to desired bitrate when converting to
 ReplaygainTagging="${AUDIO_REPLAYGAIN}" # TRUE = ENABLED, adds replaygain tags for compatible players (FLAC ONLY)
 DetectNonSplitAlubms="${AUDIO_DSFA}" # TRUE = ENABLED :: Uses "MaxFileSize" to detect and mark download as failed if detected
 MaxFileSize="${AUDIO_DSFAS}" # M = MB, G = GB :: Set size threshold for detecting single file albums
-
+TagWithBeets="${AUDIO_BEETSTAGGING}" # TRUE = ENABLED 
 #============FUNCTIONS============
 
 settings () {
@@ -212,6 +212,32 @@ replaygain () {
 	fi
 }
 
+beets () {
+	echo ""
+	trackcount=$(find "$1" -type f -iregex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" | wc -l)
+	echo "Matching $trackcount tracks with Beets"
+	if [ -f "/beets-library.blb" ]; then
+		rm /beets-library.blb
+		sleep 0.1
+	fi
+	
+	touch "$1/beets-match"
+	sleep 0.1
+	
+	if find "$1" -type f -iregex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" | read; then
+		beet -c "/config/scripts/beets-config.yaml" -l "/beets-library.blb" -d "$1" import -q "$1" > /dev/null
+		if find "$1" -type f -iregex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" -newer "$1/beets-match" | read; then
+			echo "SUCCESS: Matched with beets!"
+		else
+			echo "ERROR: Unable to match using beets, fallback to lidarr import matching..."
+		fi	
+	fi
+	
+	if [ -f "$1/beets-match" ]; then 
+		rm "$1/beets-match"
+		sleep 0.1
+	fi
+}
 
 #============START SCRIPT============
 
@@ -228,6 +254,10 @@ conversion "$1"
 
 if [ "${ReplaygainTagging}" = TRUE ]; then
 	replaygain "$1"
+fi
+
+if [ "${TagWithBeets}" = TRUE ]; then
+	beets "$1"
 fi
 
 echo ""
