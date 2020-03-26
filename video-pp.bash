@@ -4,6 +4,19 @@ set -e
 
 # start
 
+if [ ! -f /config/scripts/Deobfuscate.py ]; then
+    echo "downloading Deobfuscate.py from: https://github.com/sabnzbd/sabnzbd/blob/develop/scripts/Deobfuscate.py"
+    curl -o /config/scripts/Deobfuscate.py https://raw.githubusercontent.com/sabnzbd/sabnzbd/develop/scripts/Deobfuscate.py
+    echo "done"
+
+    # Set Permissions
+    echo "setting permissions..."
+    chmod 777 /config/scripts/Deobfuscate.py
+    echo "done"
+fi
+
+timeout --foreground 1m python /config/scripts/Deobfuscate.py "$@"
+
 # check for video files
 if find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" | read; then
 	sleep 0.1
