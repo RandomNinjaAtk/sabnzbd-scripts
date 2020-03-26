@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv bash
+#!/bin/bash
 
 # start
 
@@ -15,7 +15,7 @@ if [ ! -f /config/scripts/Deobfuscate.py ]; then
     echo "done"
 fi
 
-timeout --foreground 1m python /config/scripts/Deobfuscate.py "$@"
+timeout --foreground 1m python3 /config/scripts/Deobfuscate.py "$@"
 
 bash /usr/local/sabnzbd-scripts/video-pp.bash "$1" "/usr/local/sma/config/autoProcess.ini"
 
