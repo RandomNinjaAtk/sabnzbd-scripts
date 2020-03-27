@@ -162,7 +162,9 @@ conversion () {
 		targetbitrate="lossless"
 	fi
 	if [ -x "$(command -v ffmpeg)" ]; then
-		if find "$1"/ -name "*.flac" | read; then
+		if [ "${ConversionFormat}" = FLAC ]; then
+			sleep 0.1
+		elif find "$1"/ -name "*.flac" | read; then
 			echo ""
 			echo "Converting: $converttrackcount Tracks (Target Format: $targetformat (${targetbitrate}))"
 			for fname in "$1"/*.flac; do
