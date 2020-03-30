@@ -87,10 +87,10 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 done
 
 # check for video files
-if find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\)" | read; then
+if find "$1" -type f -iname "*.${CONVERTER_OUTPUT_EXTENSION}" | read; then
 	echo "Post Processing Complete!"
 else
-	echo "ERROR: No video files found..."
+	echo "ERROR: Conversion failed, no video files found..."
 	exit 1
 fi
 
