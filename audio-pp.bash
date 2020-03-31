@@ -8,6 +8,8 @@ ReplaygainTagging="${AUDIO_REPLAYGAIN}" # TRUE = ENABLED, adds replaygain tags f
 DetectNonSplitAlubms="${AUDIO_DSFA}" # TRUE = ENABLED :: Uses "MaxFileSize" to detect and mark download as failed if detected
 MaxFileSize="${AUDIO_DSFAS}" # M = MB, G = GB :: Set size threshold for detecting single file albums
 TagWithBeets="${AUDIO_BEETSTAGGING}" # TRUE = ENABLED 
+RequireBeetsMatch="${AUDIO_REQUIREBEETSTAGGING}" # true = enabled :: skips importing files that could not be matched using beets
+
 #============FUNCTIONS============
 
 settings () {
@@ -231,7 +233,14 @@ beets () {
 		if find "$1" -type f -iregex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" -newer "$1/beets-match" | read; then
 			echo "SUCCESS: Matched with beets!"
 		else
-			echo "ERROR: Unable to match using beets, fallback to lidarr import matching..."
+			if [ "$RequireBeetsMatch" = true ]; then
+				echo "ERROR: RequireBeetsMatch enabled, performing cleanup"
+				rm -rf "$1"/*
+				sleep 0.1
+				exit 1
+			else
+				echo "ERROR: Unable to match using beets, fallback to lidarr import matching..."
+			fi
 		fi	
 	fi
 	
