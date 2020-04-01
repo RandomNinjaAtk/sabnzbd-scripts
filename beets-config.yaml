@@ -1,4 +1,4 @@
-plugins: embedart lastgenre fetchart
+plugins: embedart lastgenre fetchart chroma
 art_filename: folder
 threaded: no
 per_disc_numbering: yes
@@ -45,8 +45,8 @@ match:
     ignored_media: [] # []
     ignore_data_tracks: yes # yes
     ignore_video_tracks: yes # yes
-    track_length_grace: 10 # 10
-    track_length_max: 30 # 30
+    track_length_grace: 1 # 10
+    track_length_max: 1 # 30
 
 paths:
     default: $disc$track - $title
@@ -65,6 +65,9 @@ import:
     duplicate_action: skip
     languages: ['en']
     group_albums: no
+
+chroma:
+    auto: yes
 
 embedart:
     auto: yes
