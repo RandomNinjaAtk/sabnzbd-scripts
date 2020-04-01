@@ -138,11 +138,6 @@ conversion () {
 		extension="opus"
 		targetbitrate="${bitrate}k"
 	fi
-	if [ "${ConversionFormat}" = FDK-AAC ]; then
-		options="-acodec libfdk_aac -ab ${bitrate}k -movflags faststart"
-		extension="m4a"
-		targetbitrate="${bitrate}k"
-	fi
 	if [ "${ConversionFormat}" = AAC ]; then
 		options="-acodec aac -ab ${bitrate}k -movflags faststart"
 		extension="m4a"
@@ -268,12 +263,12 @@ fi
 
 conversion "$1"
 
-if [ "${ReplaygainTagging}" = TRUE ]; then
-	replaygain "$1"
-fi
-
 if [ "${TagWithBeets}" = TRUE ]; then
 	beets "$1"
+fi
+
+if [ "${ReplaygainTagging}" = TRUE ]; then
+	replaygain "$1"
 fi
 
 echo ""
