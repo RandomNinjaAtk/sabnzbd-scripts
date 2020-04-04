@@ -93,7 +93,7 @@ done
 if [ ${VIDEO_SMA} = TRUE ]; then
 	find "$1" -type f ! -newer "$1/sma-conversion-check" ! -name "$1/sma-conversion-check" -delete
 	# check for video files
-	if find "$1" -type f -iname "*.${CONVERTER_OUTPUT_EXTENSION}" -newer "$1/sma-conversion-check" | read; then
+	if find "$1" -type f -iname "*.${CONVERTER_OUTPUT_EXTENSION}" | read; then
 		echo "Post Processing Complete!"
 	else
 		echo "ERROR: Conversion failed, no video files found..."
