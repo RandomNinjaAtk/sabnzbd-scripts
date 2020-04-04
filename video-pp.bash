@@ -12,7 +12,9 @@ else
 	exit 1
 fi
 
-touch "$1/sma-conversion-check"
+if [ ${VIDEO_SMA} = TRUE ]; then
+	touch "$1/sma-conversion-check"
+fi
 
 filecount=$(find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" | wc -l)
 echo "Processing ${filecount} video files..."
@@ -91,16 +93,15 @@ done
 if [ ${VIDEO_SMA} = TRUE ]; then
 	find "$1" -type f ! -newer "$1/sma-conversion-check" ! -name "$1/sma-conversion-check" -delete
 	# check for video files
-	if find "$1" -type f -iname "*.${CONVERTER_OUTPUT_EXTENSION}" | read; then
+	if find "$1" -type f -iname "*.${CONVERTER_OUTPUT_EXTENSION}" -newer "$1/sma-conversion-check" | read; then
 		echo "Post Processing Complete!"
 	else
 		echo "ERROR: Conversion failed, no video files found..."
 		exit 1
 	fi
-fi
-
-if [ -f "$1/sma-conversion-check" ]; then 
-	rm "$1/sma-conversion-check"
+	if [ -f "$1/sma-conversion-check" ]; then 
+		rm "$1/sma-conversion-check"
+	fi
 fi
 
 exit $?
