@@ -210,13 +210,12 @@ replaygain () {
 		echo "ERROR: METAFLAC replaygain utility not installed (ubuntu: apt-get install -y flac)"
 	elif find "$1" -iname "*.flac" | read; then
 		replaygaintrackcount=$(find  "$1"/ -iname "*.flac" | wc -l)
-		echo "Replaygain: Calculating replaygain for $replaygaintrackcount Tracks"
+		echo "Replaygain: Calculating $replaygaintrackcount Tracks"
 		find "$1" -iname "*.flac" -exec metaflac --add-replay-gain "{}" + && echo "Replaygain: $replaygaintrackcount Tracks Tagged"
 	fi
 }
 
 beets () {
-	echo ""
 	trackcount=$(find "$1" -type f -iregex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" | wc -l)
 	echo "Matching $trackcount tracks with Beets"
 	if [ -f "/config/scripts/beets-library.blb" ]; then
