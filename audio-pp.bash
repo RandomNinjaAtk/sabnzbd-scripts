@@ -14,7 +14,6 @@ RequireBeetsMatch="${AUDIO_REQUIREBEETSTAGGING}" # true = enabled :: skips impor
 
 settings () {
 
-echo ""
 echo "Configuration:"
 echo "Remove Non Audio Files: ENABLED"
 echo "Duplicate File CleanUp: ENABLED"
@@ -38,8 +37,16 @@ if [ "${DetectNonSplitAlubms}" = TRUE ]; then
 else
 	echo "DetectNonSplitAlubms: DISABLED"
 fi
-
-echo ""
+if [ "${TagWithBeets}" = TRUE ]; then
+	echo "Tag with Beets: ENABLED"
+else
+	echo "Tag with Beets: DISABLED"
+fi
+if [ "${RequireBeetsMatch}" = true ]; then
+	echo "Require Beets Match: ENABLED"
+else
+	echo "Require Beets Match: DISABLED"
+fi
 echo "Processing: $1" 
 
 }
@@ -79,7 +86,6 @@ duplicatefilecleanup () {
 		fi
 	fi
 	if [ "${duplicate}" = TRUE ]; then
-		echo ""
 		echo "DUPLICATE FILE CLEANUP"
 		echo "DUPLICATE FILE CLEANUP COMPLETE"
 	fi
@@ -94,7 +100,6 @@ detectsinglefilealbums () {
 verify () {
 	if find "$1" -iname "*.flac" | read; then
 		verifytrackcount=$(find  "$1"/ -iname "*.flac" | wc -l)
-		echo ""
 		echo "Verifying: $verifytrackcount Tracks"
 		if ! [ -x "$(command -v flac)" ]; then
 			echo "ERROR: FLAC verification utility not installed (ubuntu: apt-get install -y flac)"
@@ -162,7 +167,6 @@ conversion () {
 		if [ "${ConversionFormat}" = FLAC ]; then
 			sleep 0.1
 		elif find "$1"/ -name "*.flac" | read; then
-			echo ""
 			echo "Converting: $converttrackcount Tracks (Target Format: $targetformat (${targetbitrate}))"
 			for fname in "$1"/*.flac; do
 				filename="$(basename "${fname%.flac}")"
@@ -206,7 +210,7 @@ replaygain () {
 		echo "ERROR: METAFLAC replaygain utility not installed (ubuntu: apt-get install -y flac)"
 	elif find "$1" -iname "*.flac" | read; then
 		replaygaintrackcount=$(find  "$1"/ -iname "*.flac" | wc -l)
-		echo ""
+		echo "Replaygain: Calculating replaygain for $replaygaintrackcount Tracks"
 		find "$1" -iname "*.flac" -exec metaflac --add-replay-gain "{}" + && echo "Replaygain: $replaygaintrackcount Tracks Tagged"
 	fi
 }
@@ -224,7 +228,7 @@ beets () {
 	sleep 0.1
 	
 	if find "$1" -type f -iregex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" | read; then
-		beet -c "/config/scripts/beets-config.yaml" -l "/config/scripts/beets-library.blb" -d "$1" import -q "$1" > /dev/null
+		beet -c "/config/scripts/beets-config.yaml" -l "/config/scripts/beets-library.blb" -d "$1" import -q "$1"
 		if find "$1" -type f -iregex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" -newer "$1/beets-match" | read; then
 			echo "SUCCESS: Matched with beets!"
 		else
