@@ -84,6 +84,12 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 		removeaudio="false"
 	fi
 	
+	if [ -z "${setvideo}" ]; then
+		setvideolanguage="true"
+	else
+		setvideolanguage="false"
+	fi
+	
 	if [ ! -z "${nonsetsub}" ]; then
 		removesubs="true"
 	else
@@ -118,7 +124,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 	fi	
 	
 	if [ ${VIDEO_MKVCLEANER} = TRUE ]; then 
-		if [ "${removeaudio}" = false ] && [ "${removesubs}" = false ]; then
+		if [ "${removeaudio}" = false ] && [ "${removesubs}" = false ] && [ "${setvideolanguage}" = false ]; then
 			echo "INFO: Video passed all checks, no processing needed"
 			touch "$video"
 			if find "$video" -type f -iname "*.${CONVERTER_OUTPUT_EXTENSION}" | read; then
