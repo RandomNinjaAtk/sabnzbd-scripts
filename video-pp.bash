@@ -163,7 +163,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 			fi
 		fi
 		
-		if [ "${removeaudio}" = true ]
+		if [ "${removeaudio}" = true ]; then
 			if [ ! -z "${setaudiocount}" ]; then
 				mkvvideo=" -d ${allvideo} --language ${allvideo}:${VIDEO_LANG}"
 				mkvaudio=" -a ${VIDEO_LANG}"
@@ -183,7 +183,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 			mkvaudio=""
 		fi
 		
-		if [ "${removesubs}" = true ];
+		if [ "${removesubs}" = true ]; then
 			if [ ! -z "${setsubcount}" ]; then
 				mkvsubs=" -s ${VIDEO_LANG}"
 			fi
