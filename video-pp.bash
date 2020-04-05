@@ -86,6 +86,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 		undaudio=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"audio\") | select(.tags.language==\"und\") | .index")
 		undaudiocount=$(echo "${undaudio}" | wc -l)
 		nonundaudio=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"audio\") | select(.tags.language!=\"und\") | .index")
+		nonundaudiocount=$(echo "${nonundaudio}" | wc -l)
 		setsub=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"subtitle\") | select(.tags.language==\"${VIDEO_LANG}\") | .index")
 		setsubcount=$(echo "${setsub}" | wc -l)
 		nonsetsub=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"subtitle\") | select(.tags.language!=\"${VIDEO_LANG}\") | .index")
@@ -98,11 +99,19 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 	if [ -z "${allvideocount}" ]; then
 		echo "ERROR: no video tracks found"
 		rm "$video" && echo "INFO: deleted: $filename"
+	else
+		echo "${allvideocount} video tracks found!"
 	fi
 
 	if [ -z "${allaudiocount}" ]; then
 		echo "ERROR: no audio tracks found"
 		rm "$video" && echo "INFO: deleted: $filename"
+	else
+		echo "${allaudiocount} audio tracks found!"
+	fi
+	
+	if [ ! -z "${allsubcount}" ]; then
+		echo "${allsubcount} subtitle tracks found!"
 	fi
 	
 	if [ ! -z "${nonsetaudiocount}" ]; then
@@ -144,34 +153,42 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 			continue
 		else
 			echo "Checking for unwanted audio/subtitles"
-			if [ ! -z "${nonsetaudiocount}" ]; then
+			if [ -z "${setaudiocount}" ] && [ ! -z "${nonsetaudiocount}" ] && [ ! -z "${nonundaudiocount}" ]; then
 				echo "${nonsetaudiocount} unwanted audio tracks found"
+			elif [ ! -x "${undaudiocount}" ]; then
+				echo "${undaudiocount} und audio tracks found to be re-tagged as \"${VIDEO_LANG}\""
 			fi
-
 			if [ ! -z "${nonsetsubcount}" ]; then
 				echo "${nonsetsubcount} unwanted subtitle tracks found"
 			fi
 		fi
-
-		if [ ! -z "${setaudiocount}" ]; then
-			mkvvideo=" -d ${allvideo} --language ${allvideo}:${VIDEO_LANG}"
-			mkvaudio=" -a ${VIDEO_LANG}"
-			mkvsubs=" -s ${VIDEO_LANG}"
-		elif [ ! -z "${undaudiocount}" ]; then
-			for I in $undaudio
-			do
-				OUT=$OUT" -a $I --language $I:${UnkownAudioLanguage}"
-			done
-			mkvvideo=" -d ${allvideo} --language ${allvideo}:${VIDEO_LANG}"
-			mkvaudio="$OUT"
-			mkvsubs=" -s ${VIDEO_LANG}"
-		elif [ ! -z "${setsubcount}" ]; then
+		
+		if [ "${removeaudio}" = true ]
+			if [ ! -z "${setaudiocount}" ]; then
+				mkvvideo=" -d ${allvideo} --language ${allvideo}:${VIDEO_LANG}"
+				mkvaudio=" -a ${VIDEO_LANG}"
+			elif [ ! -z "${undaudiocount}" ]; then
+				for I in $undaudio
+				do
+					OUT=$OUT" -a $I --language $I:${VIDEO_LANG}"
+				done
+				mkvvideo=" -d ${allvideo} --language ${allvideo}:${VIDEO_LANG}"
+				mkvaudio="$OUT"
+			else
+				mkvvideo=""
+				mkvaudio=""
+			fi
+		else
 			mkvvideo=""
 			mkvaudio=""
-			mkvsubs=" -s ${VIDEO_LANG}"
+		fi
+		
+		if [ "${removesubs}" = true ];
+			if [ ! -z "${setsubcount}" ]; then
+				mkvsubs=" -s ${VIDEO_LANG}"
+			fi
 		else
-			rm "$video" && echo "INFO: deleted: $filename"
-			continue
+			mkvsubs=""
 		fi
 
 		if mkvmerge --no-global-tags --title "" -o "$video.merged.mkv"${mkvvideo}${mkvaudio}${mkvsubs} "$video"; then
