@@ -122,7 +122,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 				echo "${undaudiocount} und audio tracks found to be re-tagged as \"${VIDEO_LANG}\""
 			elif [ ! -z "${nonaudiolang}" ]; then
 				echo "${nonaudiolangcount} und audio tracks found to be re-tagged as \"${VIDEO_LANG}\""
-			else
+			elif [ ! -z "${nonsetaudio}" ]; then
 				echo "${nonsetaudiocount} unwanted audio tracks found"
 			fi
 			if [ ! -z "${nonsetsub}" ]; then
