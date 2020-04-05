@@ -115,7 +115,13 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 		if [ "${removeaudio}" = false ] && [ "${removesubs}" = false ]; then
 			echo "INFO: Video passed all checks, no processing needed"
 			touch "$video"
-			continue
+			if find "$video" -type f -iname "*.${CONVERTER_OUTPUT_EXTENSION}" | read; then
+				continue
+			else
+				mkvvideo=" -d ${allvideo} --language ${allvideo}:${VIDEO_LANG}"
+				mkvaudio=" -a ${VIDEO_LANG}"
+				mkvsubs=" -s ${VIDEO_LANG}"
+			fi
 		else
 			echo "Checking for unwanted audio/subtitles"
 			if [ ! -z "${undaudio}" ]; then
