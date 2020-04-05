@@ -186,6 +186,9 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 		fi
 		
 		if [ "${removesubs}" = true ]; then
+			if [ ! -z "${setaudio}" ]; then
+				mkvvideo=" -d ${allvideo} --language ${allvideo}:${VIDEO_LANG}"
+			fi
 			if [ ! -z "${setsub}" ]; then
 				mkvsubs=" -s ${VIDEO_LANG}"
 			fi
