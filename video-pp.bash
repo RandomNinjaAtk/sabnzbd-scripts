@@ -164,6 +164,8 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 			echo "Checking for unwanted audio/subtitles"
 			if [ ! -z "${undaudio}" ]; then
 				echo "${undaudiocount} und audio tracks found to be re-tagged as \"${VIDEO_LANG}\""
+			elif [ ! -z "${nonaudiolang}" ]; then
+				echo "${nonaudiolangcount} und audio tracks found to be re-tagged as \"${VIDEO_LANG}\""
 			else
 				echo "${nonsetaudiocount} unwanted audio tracks found"
 			fi
