@@ -90,7 +90,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 		setsub=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"subtitle\") | select(.tags.language==\"${VIDEO_LANG}\") | .index")
 		setsubcount=$(echo "${setsub}" | wc -l)
 		nonsetsub=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"subtitle\") | select(.tags.language!=\"${VIDEO_LANG}\") | .index")
-		nonsetsubcount=$(echo "${setsub}" | wc -l)
+		nonsetsubcount=$(echo "${nonsetsub}" | wc -l)
 	else
 		echo "ERROR: ffprobe failed to read tracks and set values"
 		rm "$video" && echo "INFO: deleted: $video"
