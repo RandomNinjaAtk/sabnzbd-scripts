@@ -145,11 +145,11 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 		else
 			echo "Checking for unwanted audio/subtitles"
 			if [ ! -z "${nonsetaudiocount}" ]; then
-				echo "${nonsetaudiocount}  unwanted audio tracks found"
+				echo "${nonsetaudiocount} unwanted audio tracks found"
 			fi
 
 			if [ ! -z "${nonsetsubcount}" ]; then
-				echo "${nonsetsubcount}  unwanted subtitle tracks found"
+				echo "${nonsetsubcount} unwanted subtitle tracks found"
 			fi
 		fi
 
