@@ -70,7 +70,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 	echo "===================================================="
 	filename="$(basename "$video")"
 	echo "Begin processing: $filename"
-	echo "Checking for \"${VIDEO_LANG}\" audio/subtitle tracks"
+	echo "Checking for audio/subtitle tracks"
 	tracks=$(ffprobe -show_streams -print_format json -loglevel quiet "$video")
 	if [ ! -z "${tracks}" ]; then
 		allvideo=$(echo "${tracks}" | jq '. | .streams | .[] | select (.codec_type=="video") | .index')
@@ -126,7 +126,8 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 		removesubs="false"
 	fi
 	
-	if [ -f "$video" ]; then	
+	if [ -f "$video" ]; then
+		echo "Checking for \"${VIDEO_LANG}\" audio/subtitle tracks"
 		if [ ! -z "${setaudio}" ]; then
 			echo "${setaudiocount} \"${VIDEO_LANG}\" audio tracks found"
 			if [ ! -z "${setsub}" ]; then
