@@ -17,6 +17,50 @@ if [ ${VIDEO_SMA} = TRUE ]; then
 elif [ ${VIDEO_MKVCLEANER} = TRUE ]; then 
 	touch "$1/sma-conversion-check"
 	CONVERTER_OUTPUT_EXTENSION="mkv"
+
+	#convert mp4 to mkv before language processing
+	find "$1" -type f -iregex ".*/.*\.\(mp4\)" -print0 | while IFS= read -r -d '' video; do
+		echo ""
+		echo "=========================="
+		echo "INFO: Processing $video"
+		if timeout 10s mkvmerge -i "$video" > /dev/null; then
+			echo "INFO: MP4 found, remuxing to mkv before processing audio/subtitles"
+			mkvmerge -o "$video.merged.mkv" "$video"
+			# cleanup temp files and rename
+			mv "$video" "$video.original.mkv" && echo "INFO: Renamed source file"
+			mv "$video.merged.mkv" "${video/.mp4/.mkv}" && echo "INFO: Renamed temp file"
+			rm "$video.original.mkv" && echo "INFO: Deleted source file"
+		else
+			echo "ERROR: mkvmerge failed"
+			rm "$video" && echo "INFO: deleted: $video"
+			continue
+		fi
+		echo "INFO: Processing complete"
+		echo "=========================="
+		echo ""
+	done
+
+	#convert avi to mkv before language processing
+	find "$1" -type f -iregex ".*/.*\.\(avi\)" -print0 | while IFS= read -r -d '' video; do
+		echo ""
+		echo "=========================="
+		echo "INFO: Processing $video"
+		if timeout 10s mkvmerge -i "$video" > /dev/null; then
+			echo "INFO: AVI found, remuxing to mkv before processing audio/subtitles"
+			mkvmerge -o "$video.merged.mkv" "$video"
+			# cleanup temp files and rename
+			mv "$video" "$video.original.mkv" && echo "INFO: Renamed source file"
+			mv "$video.merged.mkv" "${video/.avi/.mkv}" && echo "INFO: Renamed temp file"
+			rm "$video.original.mkv" && echo "INFO: Deleted source file"
+		else
+			echo "ERROR: mkvmerge failed"
+			rm "$video" && echo "INFO: deleted: $video"
+			continue
+		fi
+		echo "INFO: Processing complete"
+		echo "=========================="
+		echo ""
+	done
 fi
 
 filecount=$(find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" | wc -l)
