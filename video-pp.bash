@@ -83,6 +83,8 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 		setaudiocount=$(echo "${setaudio}" | wc -l)
 		nonsetaudio=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"audio\") | select(.tags.language!=\"${VIDEO_LANG}\") | .index")
 		nonsetaudiocount=$(echo "${nonsetaudio}" | wc -l)
+		nonaudiolang=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"audio\") | select(.tags.language==\"\") | .index")
+		nonaudiolangcount=$(echo "${nonaudiolang}" | wc -l)
 		undaudio=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"audio\") | select(.tags.language==\"und\") | .index")
 		undaudiocount=$(echo "${undaudio}" | wc -l)
 		nonundaudio=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"audio\") | select(.tags.language!=\"und\") | .index")
@@ -138,13 +140,18 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 			if [ ! -z "${setsub}" ]; then
 				echo "${setsubcount} \"${VIDEO_LANG}\" subtitle tracks found"
 			fi
+		elif [ ! -z "${nonaudiolang}" ]; then
+			echo "${nonaudiolangcount} \"und\" audio tracks found"
+			if [ ! -z "${setsub}" ]; then
+				echo "${setsubcount} \"${VIDEO_LANG}\" subtitle tracks found"
+			fi
 		elif [ ! -z "${setsub}" ]; then
 			echo "${allaudiocount} Audio Tracks Found"
 			echo "${setsubcount} \"${VIDEO_LANG}\" subtitle tracks found"
 		else
 			echo "ERROR: no \"${VIDEO_LANG}\" audio/subtitle tracks found"
-			rm "$video" && echo "INFO: deleted: $filename"
-			continue
+			# rm "$video" && echo "INFO: deleted: $filename"
+			exit 1
 		fi
 	fi	
 	
@@ -155,10 +162,10 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 			continue
 		else
 			echo "Checking for unwanted audio/subtitles"
-			if [ -z "${setaudio}" ] && [ ! -z "${nonsetaudio}" ] && [ ! -z "${nonundaudio}" ]; then
-				echo "${nonsetaudiocount} unwanted audio tracks found"
-			elif [ ! -z "${undaudio}" ]; then
+			if [ ! -z "${undaudio}" ]; then
 				echo "${undaudiocount} und audio tracks found to be re-tagged as \"${VIDEO_LANG}\""
+			else
+				echo "${nonsetaudiocount} unwanted audio tracks found"
 			fi
 			if [ ! -z "${nonsetsub}" ]; then
 				echo "${nonsetsubcount} unwanted subtitle tracks found"
@@ -171,6 +178,13 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 				mkvaudio=" -a ${VIDEO_LANG}"
 			elif [ ! -z "${undaudio}" ]; then
 				for I in $undaudio
+				do
+					OUT=$OUT" -a $I --language $I:${VIDEO_LANG}"
+				done
+				mkvvideo=" -d ${allvideo} --language ${allvideo}:${VIDEO_LANG}"
+				mkvaudio="$OUT"
+			elif [ ! -z "${nonaudiolang}" ]; then 
+				for I in $nonaudiolang
 				do
 					OUT=$OUT" -a $I --language $I:${VIDEO_LANG}"
 				done
