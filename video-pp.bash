@@ -134,6 +134,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 			if [ ! -z "${setaudio}" ]; then
 				mkvvideo=" -d ${allvideo} --language ${allvideo}:${VIDEO_LANG}"
 				mkvaudio=" -a ${VIDEO_LANG}"
+				mkvsubs=" -s ${VIDEO_LANG}"
 			elif [ ! -z "${undaudio}" ]; then
 				for I in $undaudio
 				do
@@ -141,6 +142,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 				done
 				mkvvideo=" -d ${allvideo} --language ${allvideo}:${VIDEO_LANG}"
 				mkvaudio="$OUT"
+				mkvsubs=" -s ${VIDEO_LANG}"
 			elif [ ! -z "${nonaudiolang}" ]; then 
 				for I in $nonaudiolang
 				do
@@ -148,6 +150,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 				done
 				mkvvideo=" -d ${allvideo} --language ${allvideo}:${VIDEO_LANG}"
 				mkvaudio="$OUT"
+				mkvsubs=" -s ${VIDEO_LANG}"
 			else
 				mkvvideo=""
 				mkvaudio=""
@@ -161,12 +164,8 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 			if [ ! -z "${setaudio}" ]; then
 				mkvvideo=" -d ${allvideo} --language ${allvideo}:${VIDEO_LANG}"
 			fi
-			if [ ! -z "${setsub}" ]; then
-				mkvsubs=" -s ${VIDEO_LANG}"
-			elif [ ! -z "${nonsetsub}" ]; then
-				mkvsubs=" -s ${VIDEO_LANG}"
-			fi
-		else
+			mkvsubs=" -s ${VIDEO_LANG}"
+		elif [ -z "${mkvsubs}" ]; then 
 			mkvsubs=""
 		fi
 
