@@ -150,6 +150,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 	if [ ${VIDEO_MKVCLEANER} = TRUE ]; then 
 		if [ "${removeaudio}" = false ] && [ "${removesubs}" = false ]; then
 			echo "INFO: Video passed all checks, no processing needed"
+			touch "$video"
 			continue
 		else
 			echo "Checking for unwanted audio/subtitles"
