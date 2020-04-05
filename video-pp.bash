@@ -34,11 +34,15 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 		allsubcount=$(echo "${allsub}" | wc -l)
 		setaudio=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"audio\") | select(.tags.language==\"${VIDEO_LANG}\") | .index")
 		setaudiocount=$(echo "${setaudio}" | wc -l)
+		nonsetaudio=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"audio\") | select(.tags.language!=\"${VIDEO_LANG}\") | .index")
+		nonsetaudiocount=$(echo "${nonsetaudio}" | wc -l)
 		undaudio=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"audio\") | select(.tags.language==\"und\") | .index")
 		undaudiocount=$(echo "${undaudio}" | wc -l)
 		nonundaudio=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"audio\") | select(.tags.language!=\"und\") | .index")
 		setsub=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"subtitle\") | select(.tags.language==\"${VIDEO_LANG}\") | .index")
 		setsubcount=$(echo "${setsub}" | wc -l)
+		nonsetsub=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"subtitle\") | select(.tags.language!=\"${VIDEO_LANG}\") | .index")
+		nonsetsubcount=$(echo "${setsub}" | wc -l)
 	else
 		echo "ERROR: ffprobe failed to read tracks and set values"
 		rm "$video" && echo "INFO: deleted: $video"
@@ -52,8 +56,20 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 	if [ -z "${allaudiocount}" ]; then
 		echo "ERROR: no audio tracks found"
 		rm "$video" && echo "INFO: deleted: $filename"
-	fi	
-
+	fi
+	
+	if [ ! -z "${nonsetaudiocount}" ]; then
+		removeaudio="true"
+	else
+		removeaudio="false"
+	fi
+	
+	if [ ! -z "${nonsetsubcount}" ]; then
+		removesubs="true"
+	else
+		removesubs="false"
+	fi
+	
 	if [ -f "$video" ]; then	
 		if [ ! -z "${setaudiocount}" ]; then
 			echo "${setaudiocount} \"${VIDEO_LANG}\" audio tracks found"
@@ -71,8 +87,51 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 		else
 			echo "ERROR: no \"${VIDEO_LANG}\" audio/subtitle tracks found"
 			rm "$video" && echo "INFO: deleted: $filename"
+			continue
 		fi
+	fi	
+	
+	if [ ${VIDEO_MKVCLEANER} = TRUE ]; then 
+		if [ "${removeaudio}" = false ] && [ "${removesubs}" = false ]; then
+			echo "INFO: Video passed all checks, no processing needed"
+			continue
+		fi
+
+		if [ ! -z "${setaudiocount}" ]; then
+			mkvvideo=" -d ${allvideo} --language ${allvideo}:${VIDEO_LANG}"
+			mkvaudio=" -a ${VIDEO_LANG}"
+			mkvsubs=" -s ${VIDEO_LANG}"
+		elif [ ! -z "${undaudiocount}" ]; then
+			for I in $undaudio
+			do
+				OUT=$OUT" -a $I --language $I:${UnkownAudioLanguage}"
+			done
+			mkvvideo=" -d ${allvideo} --language ${allvideo}:${VIDEO_LANG}"
+			mkvaudio="$OUT"
+			mkvsubs=" -s ${VIDEO_LANG}"
+		elif [ ! -z "${setsubcount}" ]; then
+			mkvvideo=""
+			mkvaudio=""
+			mkvsubs=" -s ${VIDEO_LANG}"
+		else
+			rm "$video" && echo "INFO: deleted: $filename"
+			continue
+		fi
+
+		if mkvmerge --no-global-tags --title "" -o "$video.merged.mkv"${mkvvideo}${mkvaudio}${mkvsubs} "$video"; then
+			echo "SUCCESS: mkvmerge complete"
+			echo "INFO: Options used:${mkvvideo}${mkvaudio}${mkvsubs}"
+		else
+			echo "ERROR: mkvmerge failed"
+			rm "$video" && echo "INFO: deleted: $filename"
+			continue
+		fi
+		# cleanup temp files and rename
+		mv "$video" "$video.original.mkv" && echo "INFO: Renamed source file"
+		mv "$video.merged.mkv" "$video" && echo "INFO: Renamed temp file"
+		rm "$video.original.mkv" && echo "INFO: Deleted source file"
 	fi
+
 	if [ ${VIDEO_SMA} = TRUE ]; then
 		if [ -f "$video" ]; then
 			echo ""
