@@ -31,6 +31,12 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 	if [ ! -z "${tracks}" ]; then
 		allvideo=$(echo "${tracks}" | jq '. | .streams | .[] | select (.codec_type=="video") | .index')
 		allvideocount=$(echo "${allvideo}" | wc -l)
+		setvideo=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"video\") | select(.tags.language==\"${VIDEO_LANG}\") | .index")
+		setvideocount=$(echo "${setvideo}" | wc -l)
+		nonsetvideo=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"video\") | select(.tags.language!=\"${VIDEO_LANG}\") | .index")
+		nonsetvideocount=$(echo "${nonsetvideo}" | wc -l)
+		nonvideolang=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"video\") | select(.tags.language==null) | .index")
+		nonvideolangcount=$(echo "${nonvideolang}" | wc -l)
 		allaudio=$(echo "${tracks}" | jq '. | .streams | .[] | select (.codec_type=="audio") | .index')
 		allaudiocount=$(echo "${allaudio}" | wc -l)
 		allsub=$(echo "${tracks}" | jq '. | .streams | .[] | select (.codec_type=="subtitle") | .index')	
@@ -128,7 +134,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 				echo "${undaudiocount} und audio tracks found to be re-tagged as \"${VIDEO_LANG}\""
 			elif [ ! -z "${nonaudiolang}" ]; then
 				echo "${nonaudiolangcount} und audio tracks found to be re-tagged as \"${VIDEO_LANG}\""
-			elif [ ! -z "${nonsetaudio}" ]; then
+			elif [ -z "${setaudio}" ] && [ ! -z "${nonsetaudio}" ]; then
 				echo "${nonsetaudiocount} unwanted audio tracks found"
 			fi
 			if [ ! -z "${nonsetsub}" ]; then
