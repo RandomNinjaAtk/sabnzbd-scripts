@@ -178,9 +178,9 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 			continue
 		fi
 		# cleanup temp files and rename
-		mv "$video" "$video.original.mkv" && echo "INFO: Renamed source file"
-		mv "$video.merged.mkv" "$video" && echo "INFO: Renamed temp file"
-		rm "$video.original.mkv" && echo "INFO: Deleted source file"
+		mv "$video" "$video.original" && echo "INFO: Renamed source file"
+		mv "$video.merged.mkv" "${video}.mkv" && echo "INFO: Renamed temp file"
+		rm "$video.original" && echo "INFO: Deleted source file"
 	fi
 
 	if [ ${VIDEO_SMA} = TRUE ]; then
