@@ -163,6 +163,8 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 			fi
 			if [ ! -z "${setsub}" ]; then
 				mkvsubs=" -s ${VIDEO_LANG}"
+			elif [ ! -z "${nonsetsub}" ]; then
+				mkvsubs=" -s ${VIDEO_LANG}"
 			fi
 		else
 			mkvsubs=""
