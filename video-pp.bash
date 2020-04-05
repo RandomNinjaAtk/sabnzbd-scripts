@@ -83,7 +83,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 		setaudiocount=$(echo "${setaudio}" | wc -l)
 		nonsetaudio=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"audio\") | select(.tags.language!=\"${VIDEO_LANG}\") | .index")
 		nonsetaudiocount=$(echo "${nonsetaudio}" | wc -l)
-		nonaudiolang=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"audio\") | select(.tags.language==\"\") | .index")
+		nonaudiolang=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"audio\") | select(.tags.language==null) | .index")
 		nonaudiolangcount=$(echo "${nonaudiolang}" | wc -l)
 		undaudio=$(echo "${tracks}" | jq ". | .streams | .[] | select(.codec_type==\"audio\") | select(.tags.language==\"und\") | .index")
 		undaudiocount=$(echo "${undaudio}" | wc -l)
