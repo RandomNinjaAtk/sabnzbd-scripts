@@ -131,7 +131,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 					echo "$AudioTracksLanguageCount \"${VIDEO_LANG}\" audio tracks found!"
 					unwanted=$(($AudioTracksCount-$AudioTracksLanguageCount))
 					if [ $AudioTracksLanguageCount -ne $AudioTracksCount ]; then
-						echo "$unwanted unwanted audio tracks to remove..."
+						echo "$unwanted \"unwanted\" audio tracks to remove..."
 					fi
 				elif [ ! -z "$AudioTracksLanguageUND" ]; then
 					for I in $AudioTracksLanguageUND
@@ -142,7 +142,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 					echo "$AudioTracksLanguageUNDCount \"unknown\" audio tracks found, re-tagging as \"${VIDEO_LANG}\""
 					unwanted=$(($AudioTracksCount-$AudioTracksLanguageUNDCount))
 					if [ $AudioTracksLanguageUNDCount -ne $AudioTracksCount ]; then
-						echo "$unwanted unwanted audio tracks to remove..."
+						echo "$unwanted \"unwanted\" audio tracks to remove..."
 					fi
 				elif [ ! -z "$AudioTracksLanguageNull" ]; then
 					for I in $AudioTracksLanguageNull
@@ -153,7 +153,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 					echo "$AudioTracksLanguageNullCount \"unknown\" audio tracks found, re-tagging as \"${VIDEO_LANG}\""
 					unwanted=$(($AudioTracksCount-$AudioTracksLanguageNullCount))
 					if [ $AudioTracksLanguageNullCount -ne $AudioTracksCount ]; then
-						echo "$unwanted unwanted audio tracks to remove..."
+						echo "$unwanted \"unwanted\" audio tracks to remove..."
 					fi
 				fi
 			else
@@ -181,7 +181,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 				fi
 				unwanted=$(($SubtitleTracksCount-$SubtitleTracksLanguageCount))
 				if [ $SubtitleTracksLanguageCount -ne $SubtitleTracksCount ]; then
-					echo "$unwanted unwanted subtitle tracks to remove..."
+					echo "$unwanted \"unwanted\" subtitle tracks to remove..."
 				fi
 			else
 				echo "$SubtitleTracksLanguageCount \"${VIDEO_LANG}\" subtitle tracks found!"
