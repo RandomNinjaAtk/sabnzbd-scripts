@@ -73,6 +73,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 	if [ -z "${VideoTrack}" ]; then
 		echo "ERROR: no video track found"
 		rm "$video" && echo "INFO: deleted: $filename"
+		continue
 	else
 		echo "$VideoTrackCount video track found!"
 	fi
@@ -81,6 +82,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 	if [ -z "${AudioTracks}" ]; then
 		echo "ERROR: no audio tracks found"
 		rm "$video" && echo "INFO: deleted: $filename"
+		continue
 	else
 		echo "$AudioTracksCount audio tracks found!"
 	fi
