@@ -29,7 +29,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
         filename="$(basename "$video")"
         echo "Begin processing $count of $filecount: $filename"
 	echo "Checking for audio/subtitle tracks"
-	tracks=$(mkvmerge -J "$video" )
+	tracks=$(mkvmerge -J "$video")
 	if [ ! -z "${tracks}" ]; then
 		# video tracks
 		VideoTrack=$(echo "${tracks}" | jq ".tracks[] | select(.type==\"video\") | .id")
@@ -50,7 +50,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 		# audio foreign language
 		AudioTracksLanguageForeignCount=$(echo "${tracks}" | jq ".tracks[] | select((.type==\"audio\") and select(.properties.language!=\"${VIDEO_LANG}\")) | .id" | wc -l)		
 		# subtitle tracks
-		SubtitleTracks=$(echo "${tracks}" | jq ".tracks[] | select(.type==\"subtitles\") | .id")	
+		SubtitleTracks=$(echo "${tracks}" | jq ".tracks[] | select(.type==\"subtitles\") | .id")
 		SubtitleTracksCount=$(echo "${tracks}" | jq ".tracks[] | select(.type==\"subtitles\") | .id" | wc -l)
 		# subtitle preferred langauge
 		SubtitleTracksLanguage=$(echo "${tracks}" | jq ".tracks[] | select((.type==\"subtitles\") and select(.properties.language==\"${VIDEO_LANG}\")) | .id")
