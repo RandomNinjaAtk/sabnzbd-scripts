@@ -21,12 +21,13 @@ fi
 
 filecount=$(find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" | wc -l)
 echo "Processing ${filecount} video files..."
+count=0
 find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -r -d '' video; do
-	let j++
+        count=$(($count+1))
 	echo ""
-	echo "===================================================="
-	filename="$(basename "$video")"
-	echo "Begin processing $j of $filecount: $filename"
+        echo "===================================================="
+        filename="$(basename "$video")"
+        echo "Begin processing $count of $filecount: $filename"
 	echo "Checking for audio/subtitle tracks"
 	tracks=$(mkvmerge -J "$video" )
 	if [ ! -z "${tracks}" ]; then
