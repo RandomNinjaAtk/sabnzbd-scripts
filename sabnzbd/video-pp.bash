@@ -17,6 +17,6 @@ fi
 
 timeout --foreground 1m python3 /config/scripts/Deobfuscate.py "$@"
 
-bash /usr/local/sabnzbd-scripts/video-pp.bash "$1" "/usr/local/sma/config/autoProcess.ini"
+bash /usr/local/sabnzbd-scripts/video-pp.bash "$@"
 
 exit $?
