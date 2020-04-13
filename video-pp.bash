@@ -270,7 +270,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 done
 
 if [ ${VIDEO_SMA} = TRUE ] || [ ${VIDEO_MKVCLEANER} = TRUE ]; then
-	find "$1" -type f ! -newer "$1/sma-conversion-check" ! -name "$1/sma-conversion-check" -delete
+	find "$1" -type f ! -newer "$1/sma-conversion-check" ! -name "sma-conversion-check" -delete
 	# check for video files
 	if find "$1" -type f -iname "*.${CONVERTER_OUTPUT_EXTENSION}" | read; then
 		echo "Post Processing Complete!"
