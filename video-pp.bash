@@ -85,7 +85,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 	
 	echo "Checking for \"${VIDEO_LANG}\" video/audio/subtitle tracks"
 	if [ ! -z "$AudioTracksLanguage" ] || [ ! -z "$SubtitleTracksLanguage" ]; then
-		if [ ! ${VIDEO_MKVCLEANER} = TRUE ]; then
+		if [ ! ${VIDEO_MKVCLEANER} = TRUE ] || [ ! ${VIDEO_SMA} = TRUE ]; then
 			echo "ERROR: No \"${VIDEO_LANG}\" audio or subtitle tracks found..."
 			rm "$video" && echo "INFO: deleted: $filename"
 			continue
