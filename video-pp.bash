@@ -99,10 +99,10 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 			fi
 		else
 			if [ ! -z "${AudioTracks}" ]; then
-				echo "INFO: \"${AudioTracksLanguageFound}\" audio track found!"
+				echo "INFO: ${AudioTracksLanguageFound} audio track found!"
 			fi
 			if [ ! -z "${SubtitleTracks}" ]; then
-				echo "INFO: \"${SubtitleTracksLanguageFound}\" subtitle track found!"
+				echo "INFO: ${SubtitleTracksLanguageFound} subtitle track found!"
 			fi
 			echo "ERROR: No \"${VIDEO_LANG}\" audio or subtitle tracks found..."
 			# rm "$video" && echo "INFO: deleted: $filename"
@@ -162,10 +162,10 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 			fi
 		elif [ -z "$SubtitleTracksLanguage" ]; then
 			if [ ! -z "${AudioTracks}" ]; then
-				echo "INFO: \"${AudioTracksLanguageFound}\" audio track found!"
+				echo "INFO: ${AudioTracksLanguageFound} audio track found!"
 			fi
 			if [ ! -z "${SubtitleTracks}" ]; then
-				echo "INFO: \"${SubtitleTracksLanguageFound}\" subtitle track found!"
+				echo "INFO: ${SubtitleTracksLanguageFound} subtitle track found!"
 			fi
 			echo "ERROR: no \"${VIDEO_LANG}\" audio/subtitle tracks found!"
 			# rm "$video" && echo "INFO: deleted: $filename"
