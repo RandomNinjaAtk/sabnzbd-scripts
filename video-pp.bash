@@ -4,6 +4,8 @@ set -e
 
 # start
 
+echo ""
+
 # check for video files
 if find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" | read; then
 	sleep 0.1
@@ -138,7 +140,6 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 		
 	if [ ${VIDEO_MKVCLEANER} = TRUE ]; then
 		echo "Begin processing with MKV Cleaner..."
-		echo ""
 		echo "Checking for \"${VIDEO_LANG}\" video/audio/subtitle tracks"
 		# Check for unwanted audio tracks and remove/re-label as needed...
 		if [ ! -z "$AudioTracksLanguage" ] || [ ! -z "$AudioTracksLanguageUND" ] || [ ! -z "$AudioTracksLanguageNull" ]; then
