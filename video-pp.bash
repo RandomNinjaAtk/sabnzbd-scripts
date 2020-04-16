@@ -42,7 +42,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 		# audio preferred language
 		AudioTracksLanguage=$(echo "${tracks}" | jq ".tracks[] | select((.type==\"audio\") and select(.properties.language==\"${VIDEO_LANG}\")) | .id")
 		AudioTracksLanguageCount=$(echo "${tracks}" | jq ".tracks[] | select((.type==\"audio\") and select(.properties.language==\"${VIDEO_LANG}\")) | .id" | wc -l)
-		AudioTracksLanguageFound=$(echo "${tracks}" | jq ".tracks[] | select((.type==\"audio\") | .properties.language")
+		AudioTracksLanguageFound=$(echo "${tracks}" | jq ".tracks[] | select(.type==\"audio\") | .properties.language")
 		# audio unkown laguage
 		AudioTracksLanguageUND=$(echo "${tracks}" | jq ".tracks[] | select((.type==\"audio\") and select(.properties.language==\"und\")) | .id")
 		AudioTracksLanguageUNDCount=$(echo "${tracks}" | jq ".tracks[] | select((.type==\"audio\") and select(.properties.language==\"und\")) | .id" | wc -l)
@@ -56,7 +56,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 		# subtitle preferred langauge
 		SubtitleTracksLanguage=$(echo "${tracks}" | jq ".tracks[] | select((.type==\"subtitles\") and select(.properties.language==\"${VIDEO_LANG}\")) | .id")
 		SubtitleTracksLanguageCount=$(echo "${tracks}" | jq ".tracks[] | select((.type==\"subtitles\") and select(.properties.language==\"${VIDEO_LANG}\")) | .id" | wc -l)
-		SubtitleTracksLanguageFound=$(echo "${tracks}" | jq ".tracks[] | select((.type==\"subtitles\") | .properties.language")
+		SubtitleTracksLanguageFound=$(echo "${tracks}" | jq ".tracks[] | select(.type==\"subtitles\") | .properties.language")
 
 	else
 		echo "ERROR: ffprobe failed to read tracks and set values"
