@@ -12,6 +12,19 @@ else
 	exit 1
 fi
 
+echo "Script Configuration:"
+echo "Required Audio/Subtitle Language: ${VIDEO_LANG}"
+if [ ${VIDEO_MKVCLEANER} = TRUE ]; then
+	echo "Video Post Processing with MKV Cleaner: ENABLED"
+else
+	echo "Video Post Processing with MKV Cleaner: DISABLED"
+fi
+if [ ${VIDEO_SMA} = TRUE ]; then
+	echo "Video Post Processing with SMA: ENABLED"
+else
+	echo "Video Post Processing with SMA: DISABLED"
+fi
+echo ""
 if [ ${VIDEO_SMA} = TRUE ]; then
 	touch "$1/sma-conversion-check"
 elif [ ${VIDEO_MKVCLEANER} = TRUE ]; then 
@@ -86,18 +99,20 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 		echo "$SubtitleTracksCount subtitle tracks found!"
 	fi
 	
-	echo "Checking for \"${VIDEO_LANG}\" video/audio/subtitle tracks"
 	if [ ! -z "$AudioTracksLanguage" ] || [ ! -z "$SubtitleTracksLanguage" ]; then
 		if [ ${VIDEO_MKVCLEANER} = TRUE ] || [ ${VIDEO_SMA} = TRUE ]; then
 			if [ ! -z "$AudioTracksLanguage" ] || [ ! -z "$SubtitleTracksLanguage" ] || [ ! -z "$AudioTracksLanguageUND" ] || [ ! -z "$AudioTracksLanguageNull" ]; then
 				sleep 0.1
 			else
+				echo "Checking for \"${VIDEO_LANG}\" video/audio/subtitle tracks"
 				echo "ERROR: No \"${VIDEO_LANG}\" or \"Unknown\" audio tracks found..."
 				echo "ERROR: No \"${VIDEO_LANG}\" subtitle tracks found..."
-				rm "$video" && echo "INFO: deleted: $filename"
+				# rm "$video" && echo "INFO: deleted: $filename"
+				exit 1
 				continue
 			fi
 		else
+			echo "Checking for \"${VIDEO_LANG}\" video/audio/subtitle tracks"
 			if [ ! -z "${AudioTracks}" ]; then
 				echo "INFO: ${AudioTracksLanguageFound} audio track found!"
 			fi
@@ -111,6 +126,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 		fi
 	else
 		if [ ! ${VIDEO_MKVCLEANER} = TRUE ]; then
+			echo "Checking for \"${VIDEO_LANG}\" video/audio/subtitle tracks"
 			if [ ! -z "$AudioTracksLanguage" ]; then
 				echo "$AudioTracksLanguageCount \"${VIDEO_LANG}\" audio track found..."
 			fi
@@ -120,7 +136,10 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 		fi
 	fi	
 		
-	if [ ${VIDEO_MKVCLEANER} = TRUE ]; then	
+	if [ ${VIDEO_MKVCLEANER} = TRUE ]; then
+		echo "Begin processing with MKV Cleaner..."
+		echo ""
+		echo "Checking for \"${VIDEO_LANG}\" video/audio/subtitle tracks"
 		# Check for unwanted audio tracks and remove/re-label as needed...
 		if [ ! -z "$AudioTracksLanguage" ] || [ ! -z "$AudioTracksLanguageUND" ] || [ ! -z "$AudioTracksLanguageNull" ]; then
 			if [ $AudioTracksCount -ne $AudioTracksLanguageCount ]; then
