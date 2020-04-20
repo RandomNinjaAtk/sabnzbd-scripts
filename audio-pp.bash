@@ -218,16 +218,12 @@ replaygain () {
 beets () {
 	trackcount=$(find "$1" -type f -iregex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" | wc -l)
 	echo "Matching $trackcount tracks with Beets"
-	if [ -f "/config/scripts/beets-library.blb" ]; then
-		rm "/config/scripts/beets-library.blb"
-		sleep 0.1
-	fi
-	
+		
 	touch "$1/beets-match"
 	sleep 0.1
 	
 	if find "$1" -type f -iregex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" | read; then
-		beet -c "/config/scripts/configs/beets-config.yaml" -l "/config/scripts/beets-library.blb" -d "$1" import -q "$1"
+		beet -c "/config/scripts/configs/beets-config.yaml" -l "$1/beets-library.blb" -d "$1" import -q "$1"
 		if find "$1" -type f -iregex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" -newer "$1/beets-match" | read; then
 			echo "SUCCESS: Matched with beets!"
 		else
@@ -247,8 +243,8 @@ beets () {
 		sleep 0.1
 	fi
 	
-	if [ -f "/config/scripts/beets-library.blb" ]; then
-		rm "/config/scripts/beets-library.blb"
+	if [ -f "$1/beets-library.blb" ]; then
+		rm "$1/beets-library.blb"
 		sleep 0.1
 	fi
 }
