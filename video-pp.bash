@@ -31,7 +31,6 @@ if [ ${VIDEO_SMA} = TRUE ]; then
 	touch "$1/sma-conversion-check"
 elif [ ${VIDEO_MKVCLEANER} = TRUE ]; then 
 	touch "$1/sma-conversion-check"
-	CONVERTER_OUTPUT_EXTENSION="mkv"
 fi
 
 filecount=$(find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" | wc -l)
@@ -265,7 +264,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 		fi	
 	
 		if [ "${RemoveAudioTracks}" = false ] && [ "${RemoveSubtitleTracks}" = false ]; then
-			if find "$video" -type f -iname "*.${CONVERTER_OUTPUT_EXTENSION}" | read; then
+			if find "$video" -type f -iname "*.mkv" | read; then
 				echo "INFO: Video passed all checks, no processing needed"
 				touch "$video"
 				continue
@@ -311,7 +310,7 @@ done
 if [ ${VIDEO_SMA} = TRUE ] || [ ${VIDEO_MKVCLEANER} = TRUE ]; then
 	find "$1" -type f ! -newer "$1/sma-conversion-check" ! -name "sma-conversion-check" -delete
 	# check for video files
-	if find "$1" -type f -iname ".*/.*\.\(mkv\|mp4\)" | read; then
+	if find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\)" | read; then
 		echo "Post Processing Complete!"
 	else
 		echo "ERROR: Post Processing failed, no video files found..."
