@@ -40,13 +40,9 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 	count=$(($count+1))
 	echo ""
 	echo "===================================================="
-	directory=$(dirname "$video")
+	basefilename="${video%.*}"
 	filename="$(basename "$video")"
 	extension="${filename##*.}"
-	echo "$video"
-	echo "$directory"
-	echo "$filename"
-	echo "$extension"
 	echo "Begin processing $count of $filecount: $filename"
 	echo "Checking for audio/subtitle tracks"
 	tracks=$(mkvmerge -J "$video")
@@ -281,7 +277,6 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 				MKVSubtitle=" -s ${VIDEO_LANG}"
 			fi
 		fi
-		basefilename="${video%.*}"
 		if mkvmerge --no-global-tags --title "" -o "${basefilename}.merged.mkv"${MKVvideo}${MKVaudio}${MKVSubtitle} "$video"; then
 			echo "SUCCESS: mkvmerge complete"
 			echo "INFO: Options used:${MKVvideo}${MKVaudio}${MKVSubtitle}"
@@ -289,6 +284,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 			mv "$video" "$video.original" && echo "INFO: Renamed source file"
 			mv "${basefilename}.merged.mkv" "${basefilename}.mkv" && echo "INFO: Renamed temp file"
 			rm "$video.original" && echo "INFO: Deleted source file"
+			extension="mkv"
 		else
 			echo "ERROR: mkvmerge failed"
 			rm "$video" && echo "INFO: deleted: $video"
@@ -297,7 +293,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 		fi
 	fi
 	if [ ${VIDEO_SMA} = TRUE ]; then
-		if [ -f "$video" ]; then
+		if [ -f "${basefilename}.${extension}" ]; then
 			echo ""
 			echo "Begin processing with Sickbeard MP4 Automator..."
 			echo ""
