@@ -43,6 +43,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 	directory=$(dirname "$video")
 	filename="$(basename "$video")"
 	extension="${filename##*.}"
+	echo "$video"
 	echo "$directory"
 	echo "$filename"
 	echo "$extension"
