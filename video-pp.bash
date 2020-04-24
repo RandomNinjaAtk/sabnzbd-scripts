@@ -128,7 +128,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 			continue
 		fi
 	else
-		if [ ! ${VIDEO_MKVCLEANER} = TRUE ]; then
+		if [ ! ${VIDEO_MKVCLEANER} = TRUE ] || [ ! ${VIDEO_SMA} = TRUE ]; then
 			echo "Checking for \"${VIDEO_LANG}\" video/audio/subtitle tracks"
 			if [ ! -z "$AudioTracksLanguage" ]; then
 				echo "$AudioTracksLanguageCount \"${VIDEO_LANG}\" audio track found..."
