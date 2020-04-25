@@ -298,7 +298,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 			echo "Begin processing with Sickbeard MP4 Automator..."
 			echo ""
 			# Manual run of Sickbeard MP4 Automator
-			if python3 /usr/local/sma/manual.py --config "/usr/local/sma/config/autoProcess.ini" -i "${basefilename}.${extension}" -nt; then
+			if python3 /usr/local/sma/manual.py --config "$2" -i "${basefilename}.${extension}" -nt; then
 				echo "Processing complete for: ${filename}!"
 			else
 				echo "ERROR: Sickbeard MP4 Automator Processing Error"
