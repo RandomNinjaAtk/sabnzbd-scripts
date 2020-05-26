@@ -33,23 +33,6 @@ elif [ ${VIDEO_MKVCLEANER} = TRUE ]; then
 	touch "$1/sma-conversion-check"
 fi
 
-StartSMA () {
-	if [ ${VIDEO_SMA} = TRUE ]; then
-		if [ -f "${basefilename}.${extension}" ]; then
-			echo ""
-			echo "Begin processing with Sickbeard MP4 Automator..."
-			echo ""
-			# Manual run of Sickbeard MP4 Automator
-			if python3 /usr/local/sma/manual.py --config "$2" -i "${basefilename}.${extension}" -nt; then
-				echo "Processing complete for: ${filename}!"
-			else
-				echo "ERROR: Sickbeard MP4 Automator Processing Error"
-				rm "$video" && echo "INFO: deleted: $filename"
-			fi
-		fi
-	fi
-}
-
 filecount=$(find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" | wc -l)
 echo "Processing ${filecount} video files..."
 count=0
@@ -286,8 +269,11 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 			if find "$video" -type f -iname "*.mkv" | read; then
 				echo "INFO: Video passed all checks, no processing needed"
 				touch "$video"
-				StartSMA
-				continue
+				if [ ${VIDEO_SMA} = TRUE ]; then
+				    sleep 0.1
+				else
+				    continue
+				fi
 			else
 				echo "INFO: Video passed all checks, but is in the incorrect container, repackaging as mkv..."
 				MKVvideo=" -d ${VideoTrack} --language ${VideoTrack}:${VIDEO_LANG}"
@@ -310,7 +296,20 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 			continue
 		fi
 	fi
-	StartSMA "$2"
+	if [ ${VIDEO_SMA} = TRUE ]; then
+		if [ -f "${basefilename}.${extension}" ]; then
+			echo ""
+			echo "Begin processing with Sickbeard MP4 Automator..."
+			echo ""
+			# Manual run of Sickbeard MP4 Automator
+			if python3 /usr/local/sma/manual.py --config "$2" -i "${basefilename}.${extension}" -nt; then
+				echo "Processing complete for: ${filename}!"
+			else
+				echo "ERROR: Sickbeard MP4 Automator Processing Error"
+				rm "$video" && echo "INFO: deleted: $filename"
+			fi
+		fi
+	fi
 	echo "===================================================="
 done
 
