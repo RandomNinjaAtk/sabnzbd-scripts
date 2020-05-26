@@ -310,7 +310,7 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 			continue
 		fi
 	fi
-	StartSMA
+	StartSMA "$2"
 	echo "===================================================="
 done
 
