@@ -264,15 +264,13 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 				unwantedsubtitle="false"
 			fi
 		fi	
-	
+		skip="false"
 		if [ "${RemoveAudioTracks}" = false ] && [ "${RemoveSubtitleTracks}" = false ]; then
 			if find "$video" -type f -iname "*.mkv" | read; then
 				echo "INFO: Video passed all checks, no processing needed"
 				touch "$video"
 				if [ ${VIDEO_SMA} = TRUE ]; then
-				    sleep 0.1
-				else
-				    continue
+				    skip="true"
 				fi
 			else
 				echo "INFO: Video passed all checks, but is in the incorrect container, repackaging as mkv..."
@@ -281,19 +279,21 @@ find "$1" -type f -iregex ".*/.*\.\(mkv\|mp4\|avi\)" -print0 | while IFS= read -
 				MKVSubtitle=" -s ${VIDEO_LANG}"
 			fi
 		fi
-		if mkvmerge --no-global-tags --title "" -o "${basefilename}.merged.mkv"${MKVvideo}${MKVaudio}${MKVSubtitle} "$video"; then
-			echo "SUCCESS: mkvmerge complete"
-			echo "INFO: Options used:${MKVvideo}${MKVaudio}${MKVSubtitle}"
-			# cleanup temp files and rename
-			mv "$video" "$video.original" && echo "INFO: Renamed source file"
-			mv "${basefilename}.merged.mkv" "${basefilename}.mkv" && echo "INFO: Renamed temp file"
-			rm "$video.original" && echo "INFO: Deleted source file"
-			extension="mkv"
-		else
-			echo "ERROR: mkvmerge failed"
-			rm "$video" && echo "INFO: deleted: $video"
-			rm "${basefilename}.merged.mkv" && echo "INFO: deleted: ${basefilename}.merged.mkv"
-			continue
+		if [ $skip = false ]; then
+			if mkvmerge --no-global-tags --title "" -o "${basefilename}.merged.mkv"${MKVvideo}${MKVaudio}${MKVSubtitle} "$video"; then
+				echo "SUCCESS: mkvmerge complete"
+				echo "INFO: Options used:${MKVvideo}${MKVaudio}${MKVSubtitle}"
+				# cleanup temp files and rename
+				mv "$video" "$video.original" && echo "INFO: Renamed source file"
+				mv "${basefilename}.merged.mkv" "${basefilename}.mkv" && echo "INFO: Renamed temp file"
+				rm "$video.original" && echo "INFO: Deleted source file"
+				extension="mkv"
+			else
+				echo "ERROR: mkvmerge failed"
+				rm "$video" && echo "INFO: deleted: $video"
+				rm "${basefilename}.merged.mkv" && echo "INFO: deleted: ${basefilename}.merged.mkv"
+				continue
+			fi
 		fi
 	fi
 	if [ ${VIDEO_SMA} = TRUE ]; then
