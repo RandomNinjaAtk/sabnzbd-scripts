@@ -23,9 +23,13 @@ else
 fi
 if [ ${VIDEO_SMA} = TRUE ]; then
 	echo "Video Post Processing with SMA: ENABLED"
+	if [ ${VIDEO_SMA_TAGGING} = TRUE ]; then
+		echo "Video Post Processing with SMA Tagging: ENABLED"
+	fi
 else
 	echo "Video Post Processing with SMA: DISABLED"
 fi
+
 echo ""
 if [ ${VIDEO_SMA} = TRUE ]; then
 	touch "$1/sma-conversion-check"
