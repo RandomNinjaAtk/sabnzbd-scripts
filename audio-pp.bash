@@ -260,11 +260,11 @@ if [ "${AudioVerification}" = TRUE ]; then
 	verify "$1"
 fi
 
-conversion "$1"
-
 if [ "${TagWithBeets}" = TRUE ]; then
 	beets "$1"
 fi
+
+conversion "$1"
 
 if [ "${ReplaygainTagging}" = TRUE ]; then
 	replaygain "$1"
