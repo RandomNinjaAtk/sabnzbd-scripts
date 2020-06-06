@@ -56,12 +56,8 @@ clean () {
 		if find "$1" -type f -not -iregex ".*/.*\.\(flac\|mp3\|m4a\|alac\|ogg\|opus\)" | read; then
 			find "$1" -type f -not -iregex ".*/.*\.\(flac\|mp3\|m4a\|alac\|ogg\|opus\)" -delete
 		fi
-		if find "$1" -type f -mindepth 2 -iregex ".*/.*\.\(flac\|mp3\|m4a\|alac\|ogg\|opus\)" | read; then
-			find "$1" -type f -mindepth 2 -iregex ".*/.*\.\(flac\|mp3\|m4a\|alac\|ogg\|opus\)" -exec mv "{}" "$1"/ \;
-		fi
-		if find "$1" -type d -mindepth 1 | read; then
-			find "$1" -type d -mindepth 1 -exec rm -rf "{}" \;
-		fi
+		find "$1" -mindepth 2 -type f -exec mv "{}" "$1"/ \;
+		find "$1" -mindepth 1 -type d -delete
 	else
 		echo "ERROR: NO AUDIO FILES FOUND" && exit 1
 	fi
