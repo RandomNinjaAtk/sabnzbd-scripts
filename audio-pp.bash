@@ -135,7 +135,7 @@ conversion () {
 	targetformat="$ConversionFormat"
 	bitrate="$ConversionBitrate"
 	if [ "${ConversionFormat}" = OPUS ]; then
-		options="-acodec libopus -ab ${bitrate}k -application audio"
+		options="-acodec libopus -ab ${bitrate}k -application audio -vbr off"
 		extension="opus"
 		targetbitrate="${bitrate}k"
 	fi
