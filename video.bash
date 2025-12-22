@@ -1,9 +1,9 @@
 #!/bin/bash
-scriptVersion="6.5"
+scriptVersion="6.6"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 # Import Script Settings/Configuration
-source /config/settings.conf
+source /config/scripts/settings.conf
 
 set -e
 
