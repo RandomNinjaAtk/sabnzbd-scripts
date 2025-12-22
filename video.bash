@@ -1,21 +1,9 @@
 #!/bin/bash
-scriptVersion="6.4"
+scriptVersion="6.5"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
-
-##### VIDEO SCRIPT
-videoLanguages="eng" # Default: eng :: Set to required language (this is a "," separated list of ISO 639-2 language codes)
-defaultLanguage="English" # To use this porperly set the "default-language" Audio/Subtitle setting to the ISO 639-2 language code in the sma_defaultlang.ini file. The Language/word must match the exact spelling in the associated Arr App (ie: English = eng)
-requireLanguageMatch="true" # true = enabled, disables/enables checking video audio/subtitle language based on videoLanguages setting
-failVideosWithUnknownAudioTracks="true" # true = enabled, causes script to error out/fail download because unknown audio language tracks were found
-requireSubs="false" # true = enabled, subtitles must be included or the download will be marked as failed
-
-sonarrUrl="http://:8989" # Set category in SABnzbd to: sonarr
-sonarrApiKey="" # Set category in SABnzbd to: sonarr
-sonarranimeUrl="http://:8990" # Set category in SABnzbd to: sonarr-anime
-sonarranimeApiKey="" # Set category in SABnzbd to: sonarr-anime
-radarrUrl="http://:7880" # Set category in SABnzbd to: radarr
-radarrApiKey=""  # Set category in SABnzbd to: radarr
+# Import Script Settings/Configuration
+source /config/settings.conf
 
 set -e
 
