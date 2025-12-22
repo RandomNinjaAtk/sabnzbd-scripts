@@ -1,27 +1,11 @@
 #!/bin/bash
-scriptVersion="6.6"
+scriptVersion="6.7"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 # Import Script Settings/Configuration
 source /config/scripts/settings.conf
 
 set -e
-
-installDependencies () {
-  if apk --no-cache list | grep installed | grep mkvtoolnix | read; then
-    log "Dependencies already installed, skipping..."
-  else
-    log "Installing script dependencies...."
-    apk add  -U --update --no-cache \
-      jq \
-      xq \
-      git \
-      opus-tools \
-      mkvtoolnix \
-      ffmpeg
-    log "done"
-  fi
-}
 
 logfileSetup () {
   logFileName="$scriptName-$(date +"%Y_%m_%d_%I_%M_%p").txt"
@@ -502,7 +486,6 @@ MAIN () {
   skipRemux="false"
   skipStatistics="false"
   log "Script: $scriptName :: Version ($scriptVersion)"
-  installDependencies
   arrApiKeySelect
   # log "$filePath :: $downloadId :: Processing"
   if [ -f "/config/scripts/arr-info" ]; then
