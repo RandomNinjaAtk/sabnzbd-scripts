@@ -1,4 +1,5 @@
 #!/usr/bin/with-contenv bash
+version="1.0"
 
 installDependencies () {
   echo "Installing script dependencies...."
@@ -26,7 +27,6 @@ fi
 if [ ! -f /config/scripts/settings.conf ]; then
 	echo "Download Settings config..."
 	curl "https://raw.githubusercontent.com/RandomNinjaAtk/sabnzbd-scripts/refs/heads/master/setting.conf" -o /config/scripts/settings.conf
-	chmod 777 /config/scripts/extended.conf
 	echo "Done"
 fi
 
