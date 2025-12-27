@@ -20,4 +20,9 @@ SABnzbd docker container by [Linuxserver.io](https://docs.linuxserver.io/images/
 ## Scripts:
 
 ### video.bash
-This script is used to post process files in SABnzbd before Arr apps pickup the files. This script can validate the audio/subtitle tracks, strip unwanted tracks and it will remux the file to MKV format for standardization. Ideally when configured to for a specific language, this script will ensure all downloads are validated to meet a minimum requirement of having the required language in either subtitle or audio track and will only keep other languages when it was the original audio language of the video. Thus fully automating validation of files and performing a cleanup. Files that don't meet the requirements are automitically purged and the donwload is marked as failed to allow the Arr apps to try again.
+This script is used to post process files in SABnzbd before Arr apps pickup the files. What it does:
+- Remux all files to MKV
+- Validate files have the required audio/subtitle track language
+- Strip unwanted audio/subtitle tracks
+- Keep the Original Audio Track, only when a subtitle tracks is available in the required language and the downloads original language does not match the required language. It will also keep any other audio tracks that match the required language.
+- Mark downloads as failed in SABnzbd, when they don't meet language requirements
