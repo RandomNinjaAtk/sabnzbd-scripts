@@ -15,7 +15,7 @@ SABnzbd docker container by [Linuxserver.io](https://docs.linuxserver.io/images/
 1. Start your container and wait for the application to load
 1. Customize the configuration by modifying the following file `/config/scripts/settings.conf`
 1. Add the `/config/scripts` folder to the "Scripts Folder" folder setting in SABnzbd
-1. Add `video.bash` script to the appropriate SABnzb category, if categories do not exist, create a `radarr` or `sonarr` category, and use the same category name for the folder path.
+1. Add `video.bash` script to the either the`radarr` or `sonarr` category. If the category does not exist, create the `radarr` or `sonarr` category and use `radarr` or `sonarr` for the folder path.
 
 ## Scripts:
 
