@@ -26,3 +26,7 @@ This script is used to post process files in SABnzbd before Arr apps pickup the 
 - Strip unwanted audio/subtitle tracks
 - Keep the Original Audio Track, only when a subtitle tracks is available in the required language and the downloads original language does not match the required language. It will also keep any other audio tracks that match the required language.
 - Mark downloads as failed in SABnzbd, when they don't meet language requirements
+
+
+## Logging
+Logs are generated for each script execution. However, log files are rotated after every 5 executions to only keep the latest 5 log files. Logs can be found in the following folder: `/config/logs`
