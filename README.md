@@ -11,7 +11,7 @@ SABnzbd docker container by [Linuxserver.io](https://docs.linuxserver.io/images/
 1. Add volume to your container: `/custom-cont-init.d` <br>
   Docker Run Example: <br>
   `-v /path/to/preferred/local/directory:/custom-cont-init.d`
-1. Download the [script_init.bash](https://github.com/RandomNinjaAtk/sabnzbd-scripts/blob/master/scripts_init.bash) ([Download Link](https://github.com/RandomNinjaAtk/sabnzbd-scripts/raw/refs/heads/master/scripts_init.bash) and place it into the following folder: `/custom-cont-init.d`
+1. Download the [script_init.bash](https://github.com/RandomNinjaAtk/sabnzbd-scripts/blob/master/scripts_init.bash) ([Download Link](https://github.com/RandomNinjaAtk/sabnzbd-scripts/raw/refs/heads/master/scripts_init.bash) and place it into the following folder: `/custom-cont-init.d`)
 1. Start your container and wait for the application to load
 1. Customize the configuration by modifying the following file `/config/scripts/settings.conf`
 1. Add the `/config/scripts` folder to the "Scripts Folder" folder setting in SABnzbd
