@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="6.7"
+scriptVersion="6.8"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 # Import Script Settings/Configuration
@@ -522,11 +522,8 @@ MAIN () {
   log "Refreshing $arrApp download queue to notify and import completed downloads"
 
   duration=$SECONDS
-  if [ $duration -ge 60 ]; then
-    echo "Completed in $(($duration / 60 )) minutes and $(($duration % 60 )) seconds!"
-  else
-    echo "Completed in $duration seconds!"
-  fi
+  durationOutput="$(printf '%dd:%dh:%dm:%ds\n' $((duration/86400)) $((duration%86400/3600)) $((duration%3600/60)) $((duration%60)))"
+  echo "Completed in $durationOutput!"
 
   # Actually perform the Arr App Download Queue refresh here as the very last step....
   arrRefreshMonitoredDownloads
