@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="7.1"
+scriptVersion="7.2"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 keepUnknownAudioIfDefaultLangMatch="true"
@@ -94,11 +94,17 @@ VideoLanguageCheck () {
       if [ "${requireLanguageMatch}" = "true" ]; then
         if [ $videoSubtitleTracksLanguageCount -eq 0 ]; then
           log "$count of $fileCount :: ERROR :: No subtitles found, requireSubs is enabled..."
-          rm "$file" && log "INFO: deleted: $fileName"
+          rm "$file"
+          if [ $count -eq $fileCount ]; then
+            exit 1
+          fi
         fi
       elif [ $videoSubtitleTracksCount -eq 0 ]; then
         log "$count of $fileCount :: ERROR :: No subtitles found, requireSubs is enabled..."
-        rm "$file" && log "INFO: deleted: $fileName"
+        rm "$file"
+        if [ $count -eq $fileCount ]; then
+          exit 1
+        fi
       fi 
     fi
 
@@ -119,13 +125,19 @@ VideoLanguageCheck () {
                 noremuxOverride="true"
               else
                 log "$count of $fileCount :: ERROR :: Subtitle track count missmatch, cannot remux due to unknown audio, failing download and performing cleanup..."
-                rm "$file" && log "INFO: deleted: $fileName"
+                rm "$file"
+                if [ $count -eq $fileCount ]; then
+                  exit 1
+                fi
               fi
             fi
           fi
         else
           log "$count of $fileCount :: ERROR :: $videoAudioTracksCount Unknown (null) Audio Language Tracks found, failing download and performing cleanup..."
-          rm "$file" && log "INFO: deleted: $fileName"
+          rm "$file"
+          if [ $count -eq $fileCount ]; then
+            exit 1
+          fi
         fi
       fi  
     fi
@@ -137,7 +149,7 @@ VideoLanguageCheck () {
     if [ "$preferredLanguage" == "false" ]; then
       if [ "$requireLanguageMatch" == "true" ]; then
         log "$count of $fileCount :: ERROR :: No matching languages found in $(($videoAudioTracksCount + $videoSubtitleTracksCount)) Audio/Subtitle tracks"
-        rm "$file" && log "INFO: deleted: $fileName"
+        rm "$file"
       fi
     fi
 
@@ -241,8 +253,9 @@ MkvMerge () {
       newFileVideoData=$(mkvmerge -J "$filePath/$newFile")
       newFilevideoAudioTracksCount=$(echo "${newFileVideoData}" | jq -r '.tracks[] | select(.type=="audio") | .id' | wc -l)
       if [ $newFilevideoAudioTracksCount -eq 0 ]; then
+        rm "$filePath/$newFile"
         log "$count of $fileCount :: ERROR :: No audio tracks found afer remuxing, performing cleanup..."
-        rm "$filePath/$newFile" && log "INFO: deleted: $newFile"
+        exit 1
       else
         log "$count of $fileCount :: $newFilevideoAudioTracksCount Audio Tracks found!"
       fi
