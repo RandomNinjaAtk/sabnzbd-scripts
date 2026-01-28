@@ -1,7 +1,9 @@
 #!/bin/bash
-scriptVersion="6.9"
+scriptVersion="7.0"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
+keepUnknownAudioIfDefaultLangMatch="true"
+forceRemuxToMkv="false"
 # Import Script Settings/Configuration
 source /config/scripts/settings.conf
 
@@ -218,8 +220,8 @@ MkvMerge () {
       if [ -f "$filePath/$tempFile" ]; then
         if [ "$1" = "true" ]; then
           log "$count of $fileCount :: Dropping unwanted subtitles and converting to MKV ($tempFile ==> $newFile)"
-          log "$count of $fileCount :: Keeping only \"${audioLang}${videoLanguages},zxx\" audio and \"$videoLanguages\" subtitle languages, droping all other audio/subtitle tracks..."
-          mkvmerge -o "$filePath/$newFile" --audio-tracks ${audioLang}${videoLanguages},zxx --subtitle-tracks $videoLanguages --normalize-language-ietf canonical --no-global-tags --no-attachments "$filePath/$tempFile"
+          log "$count of $fileCount :: Keeping only \"${audioLang}${videoLanguages},mul,zxx\" audio and \"$videoLanguages\" subtitle languages, droping all other audio/subtitle tracks..."
+          mkvmerge -o "$filePath/$newFile" --audio-tracks ${audioLang}${videoLanguages},mul,zxx --subtitle-tracks $videoLanguages --normalize-language-ietf canonical --no-global-tags --no-attachments "$filePath/$tempFile"
         else
           mkvmerge -o "$filePath/$newFile" --normalize-language-ietf canonical --no-global-tags --no-attachments "$filePath/$tempFile"
         fi
@@ -485,7 +487,15 @@ MAIN () {
   downloadId="$SAB_NZO_ID"
   skipRemux="false"
   skipStatistics="false"
-  log "Script: $scriptName :: Version ($scriptVersion)"
+  log "Script: $scriptName :: Version :: $scriptVersion
+  log "Script: $scriptName :: Settings :: videoLanguages = $videoLanguages"
+  log "Script: $scriptName :: Settings :: defaultLanguage = $defaultLanguage"
+  log "Script: $scriptName :: Settings :: requireLanguageMatch = $requireLanguageMatch"
+  log "Script: $scriptName :: Settings :: failVideosWithUnknownAudioTracks = $failVideosWithUnknownAudioTracks"
+  log "Script: $scriptName :: Settings :: keepUnknownAudioIfDefaultLangMatch = $keepUnknownAudioIfDefaultLangMatch"
+  log "Script: $scriptName :: Settings :: requireSubs = $requireSubs"
+  log "Script: $scriptName :: Settings :: forceRemuxToMkv = $forceRemuxToMkv"
+
   arrApiKeySelect
   # log "$filePath :: $downloadId :: Processing"
   if [ -f "/config/scripts/arr-info" ]; then
