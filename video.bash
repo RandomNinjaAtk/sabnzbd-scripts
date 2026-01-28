@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="7.0"
+scriptVersion="7.1"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 keepUnknownAudioIfDefaultLangMatch="true"
@@ -487,7 +487,7 @@ MAIN () {
   downloadId="$SAB_NZO_ID"
   skipRemux="false"
   skipStatistics="false"
-  log "Script: $scriptName :: Version :: $scriptVersion
+  log "Script: $scriptName :: Version :: $scriptVersion"
   log "Script: $scriptName :: Settings :: videoLanguages = $videoLanguages"
   log "Script: $scriptName :: Settings :: defaultLanguage = $defaultLanguage"
   log "Script: $scriptName :: Settings :: requireLanguageMatch = $requireLanguageMatch"
