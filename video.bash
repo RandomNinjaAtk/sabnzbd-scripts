@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="6.8"
+scriptVersion="6.9"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 # Import Script Settings/Configuration
@@ -106,24 +106,24 @@ VideoLanguageCheck () {
 
     if [ "$failVideosWithUnknownAudioTracks" == "true" ]; then
       if [ "$videoUnknownAudioTracksNull" == "null" ] || [ $videoUnknownAudioTracksCount -ne 0 ]; then
-        VerifyApiAccess
-        ArrDownloadInfo
-        if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
-          if [ $videoAudioTracksCount -eq 1 ]; then
-            preferredLanguage=true
-            log "$count of $fileCount :: Only 1 Audio Track Detected, it is unknown but the download matches the defaultLanguage, so we're gonna assume it's just improperly tagged and skip failing the file..."
-            if [ $videoSubtitleTracksCount -eq $videoSubtitleTracksLanguageCount ]; then
-              noremuxOverride="true"
-            else
-              log "$count of $fileCount :: ERROR :: Subtitle track count missmatch, cannot remux due to unknown audio, failing download and performing cleanup..."
-              rm "$file" && log "INFO: deleted: $fileName"
+        if [ "$keepUnknownAudioIfDefaultLangMatch" == "true" ]; then
+          VerifyApiAccess
+          ArrDownloadInfo
+          if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
+            if [ $videoAudioTracksCount -eq 1 ]; then
+              preferredLanguage=true
+              log "$count of $fileCount :: Only 1 Audio Track Detected, it is unknown but the download matches the defaultLanguage, so we're gonna assume it's just improperly tagged and skip failing the file..."
+              if [ $videoSubtitleTracksCount -eq $videoSubtitleTracksLanguageCount ]; then
+                noremuxOverride="true"
+              else
+                log "$count of $fileCount :: ERROR :: Subtitle track count missmatch, cannot remux due to unknown audio, failing download and performing cleanup..."
+                rm "$file" && log "INFO: deleted: $fileName"
+              fi
             fi
           fi
         else
-          if [ "$videoUnknownAudioTracksNull" == "null" ] || [ $videoUnknownAudioTracksCount -ne 0 ]; then
-            log "$count of $fileCount :: ERROR :: $videoAudioTracksCount Unknown (null) Audio Language Tracks found, failing download and performing cleanup..."
-            rm "$file" && log "INFO: deleted: $fileName"
-          fi
+          log "$count of $fileCount :: ERROR :: $videoAudioTracksCount Unknown (null) Audio Language Tracks found, failing download and performing cleanup..."
+          rm "$file" && log "INFO: deleted: $fileName"
         fi
       fi  
     fi
@@ -219,9 +219,9 @@ MkvMerge () {
         if [ "$1" = "true" ]; then
           log "$count of $fileCount :: Dropping unwanted subtitles and converting to MKV ($tempFile ==> $newFile)"
           log "$count of $fileCount :: Keeping only \"${audioLang}${videoLanguages},zxx\" audio and \"$videoLanguages\" subtitle languages, droping all other audio/subtitle tracks..."
-          mkvmerge -o "$filePath/$newFile" --audio-tracks ${audioLang}${videoLanguages},zxx --subtitle-tracks $videoLanguages "$filePath/$tempFile"
+          mkvmerge -o "$filePath/$newFile" --audio-tracks ${audioLang}${videoLanguages},zxx --subtitle-tracks $videoLanguages --normalize-language-ietf canonical --no-global-tags --no-attachments "$filePath/$tempFile"
         else
-          mkvmerge -o "$filePath/$newFile" "$filePath/$tempFile"
+          mkvmerge -o "$filePath/$newFile" --normalize-language-ietf canonical --no-global-tags --no-attachments "$filePath/$tempFile"
         fi
         if [ -f "$filePath/$newFile" ]; then
             log "$count of $fileCount :: Conversion Complete"
@@ -502,6 +502,9 @@ MAIN () {
   if [ -f "/config/scripts/skip" ]; then
     skipRemux="true"
     rm "/config/scripts/skip"
+    if [ "$forceRemuxToMkv" == "true" ]; then
+      skipRemux="false"
+    fi
   fi
   if [ "$skipRemux" == "false" ]; then
     if [ ! -f "/config/scripts/arr-info" ]; then
