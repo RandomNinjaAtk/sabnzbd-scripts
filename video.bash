@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="7.2"
+scriptVersion="7.3"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 keepUnknownAudioIfDefaultLangMatch="true"
@@ -150,6 +150,9 @@ VideoLanguageCheck () {
       if [ "$requireLanguageMatch" == "true" ]; then
         log "$count of $fileCount :: ERROR :: No matching languages found in $(($videoAudioTracksCount + $videoSubtitleTracksCount)) Audio/Subtitle tracks"
         rm "$file"
+        if [ $count -eq $fileCount ]; then
+          exit 1
+        fi
       fi
     fi
 
@@ -500,7 +503,8 @@ MAIN () {
   downloadId="$SAB_NZO_ID"
   skipRemux="false"
   skipStatistics="false"
-  log "Script: $scriptName :: Version :: $scriptVersion"
+  log "Script: Name :: $scriptName"
+  log "Script: Version :: $scriptVersion"
   log "Script: Settings :: videoLanguages = $videoLanguages"
   log "Script: Settings :: defaultLanguage = $defaultLanguage"
   log "Script: Settings :: requireLanguageMatch = $requireLanguageMatch"
