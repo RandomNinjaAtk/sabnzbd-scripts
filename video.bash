@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="7.3"
+scriptVersion="7.4"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 keepUnknownAudioIfDefaultLangMatch="true"
@@ -115,8 +115,10 @@ VideoLanguageCheck () {
     if [ "$failVideosWithUnknownAudioTracks" == "true" ]; then
       if [ "$videoUnknownAudioTracksNull" == "null" ] || [ $videoUnknownAudioTracksCount -ne 0 ]; then
         if [ "$keepUnknownAudioIfDefaultLangMatch" == "true" ]; then
-          VerifyApiAccess
-          ArrDownloadInfo
+          if [ ! -f "/config/scripts/arr-info" ]; then
+            VerifyApiAccess
+            ArrDownloadInfo
+          fi
           if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
             if [ $videoAudioTracksCount -eq 1 ]; then
               preferredLanguage=true
