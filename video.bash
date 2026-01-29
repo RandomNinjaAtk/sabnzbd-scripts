@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="7.8"
+scriptVersion="7.9"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 keepUnknownAudioIfDefaultLangMatch="true"
@@ -446,16 +446,13 @@ ArrDownloadInfo () {
         arrQueueItemData=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=75&sortDirection=ascending&sortKey=timeleft&includeUnknownSeriesItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id)')
         arrSeriesId="$(echo $arrQueueItemData | jq -r .seriesId | sort -u)"				
         if [ -z "$arrSeriesId" ]; then
-            log "Could not get Series ID from $arrApp, skip..."
-            tagging="-nt"
-            onlineSourceId=""
             onlineData=""
             audioLang=""
             if [ "$alerted" == "no" ]; then
               alerted="yes"
               log "STATUS :: ARR APP BUSY :: Pausing/waiting for successful download lookup from ARR app..."
             fi
-            cotinue
+            continue
         else
             arrSeriesCount=$(echo "$arrSeriesId" | wc -l)
             arrEpisodeId="$(echo $arrQueueItemData | jq -r .episodeId)"
@@ -479,15 +476,13 @@ ArrDownloadInfo () {
         arrItemData=$(curl -s "$arrUrl/api/v3/movie/$arrItemId?apikey=$arrApiKey")
         onlineSourceId="$(echo "$arrItemData" | jq -r ".tmdbId")"
         if [ -z "$onlineSourceId" ]; then
-            log "Could not get Movie data from $arrApp, skip..."
-            tagging="-nt"
             onlineData=""
             audioLang=""
             if [ "$alerted" == "no" ]; then
               alerted="yes"
               log "STATUS :: ARR APP BUSY :: Pausing/waiting for successful download lookup from ARR app..."
             fi
-            cotinue
+            continue
         else
             arrItemLanguage="$(echo "$arrItemData" | jq -r ".originalLanguage.name")"
             log "Radarr Movie ID = $arrItemId :: Language: $arrItemLanguage"
