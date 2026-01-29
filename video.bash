@@ -1,9 +1,11 @@
 #!/bin/bash
-scriptVersion="7.4"
+scriptVersion="7.7"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 keepUnknownAudioIfDefaultLangMatch="true"
 forceRemuxToMkv="false"
+requireSubsForMovies="false"
+requireSubsForTv="false"
 # Import Script Settings/Configuration
 source /config/scripts/settings.conf
 
@@ -89,6 +91,23 @@ VideoLanguageCheck () {
         fi
       fi
     done
+
+    if echo "$filePath" | grep "sonarr" | read; then
+      if [ "$requireSubsForTv" == "true" ]; then
+        requireSubs="true"
+      else
+        requireSubs="false"
+      fi
+    fi
+
+    if echo "$filePath" | grep "radarr" | read; then
+      if [ "$requireSubsForMovies" == "true" ]; then
+        requireSubs="true"
+      else
+        requireSubs="false"
+      fi
+    fi 
+
 
     if [ "$requireSubs" == "true" ]; then
       if [ "${requireLanguageMatch}" = "true" ]; then
@@ -414,58 +433,77 @@ Cleaner () {
 }
 
 ArrDownloadInfo () {
-  ArrWaitForTaskCompletion
+  #ArrWaitForTaskCompletion
+  if [ -f "/config/scripts/skip" ]; then
+    return
+  fi
+  arrRefreshMonitoredDownloads
   log "Step - Getting $arrApp Download Information"
-  if echo "$filePath" | grep "sonarr" | read; then
-      arrQueueItemData=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=75&sortDirection=ascending&sortKey=timeleft&includeUnknownSeriesItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id)')
-      arrSeriesId="$(echo $arrQueueItemData | jq -r .seriesId | sort -u)"				
-      if [ -z "$arrSeriesId" ]; then
-          log "Could not get Series ID from $arrApp, skip..."
-          tagging="-nt"
-          onlineSourceId=""
-          onlineData=""
-          audioLang=""
-      else
-          arrSeriesCount=$(echo "$arrSeriesId" | wc -l)
-          arrEpisodeId="$(echo $arrQueueItemData | jq -r .episodeId)"
-          arrEpisodeCount=$(echo "$arrEpisodeId" | wc -l)
-          arrSeriesData=$(curl -s "$arrUrl/api/v3/series/$arrSeriesId?apikey=$arrApiKey")
-          onlineSourceId="$(echo "$arrSeriesData" | jq -r ".tvdbId")"
-          arrItemLanguage="$(echo "$arrSeriesData" | jq -r ".originalLanguage.name")"
-          log "Sonarr Show ID = $arrSeriesId :: Lanuage :: $arrItemLanguage"
-          log "TVDB ID = $onlineSourceId"
-          if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
+  alerted="no"
+  until false
+  do
+    if echo "$filePath" | grep "sonarr" | read; then
+        arrQueueItemData=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=75&sortDirection=ascending&sortKey=timeleft&includeUnknownSeriesItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id)')
+        arrSeriesId="$(echo $arrQueueItemData | jq -r .seriesId | sort -u)"				
+        if [ -z "$arrSeriesId" ]; then
+            log "Could not get Series ID from $arrApp, skip..."
+            tagging="-nt"
+            onlineSourceId=""
+            onlineData=""
             audioLang=""
-          else
-            arrLanguage
-            audioLang="$arrItemLang"
-          fi
-      fi
-  fi
+            if [ "$alerted" == "no" ]; then
+              alerted="yes"
+              log "STATUS :: ARR APP BUSY :: Pausing/waiting for successful download lookup from ARR app..."
+            fi
+            cotinue
+        else
+            arrSeriesCount=$(echo "$arrSeriesId" | wc -l)
+            arrEpisodeId="$(echo $arrQueueItemData | jq -r .episodeId)"
+            arrEpisodeCount=$(echo "$arrEpisodeId" | wc -l)
+            arrSeriesData=$(curl -s "$arrUrl/api/v3/series/$arrSeriesId?apikey=$arrApiKey")
+            onlineSourceId="$(echo "$arrSeriesData" | jq -r ".tvdbId")"
+            arrItemLanguage="$(echo "$arrSeriesData" | jq -r ".originalLanguage.name")"
+            log "Sonarr Show ID = $arrSeriesId :: Lanuage :: $arrItemLanguage"
+            log "TVDB ID = $onlineSourceId"
+            if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
+              audioLang=""
+            else
+              arrLanguage
+              audioLang="$arrItemLang"
+            fi
+        fi
+    fi
 
-  if echo "$filePath" | grep "radarr" | read; then
-      arrItemId=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=75&sortDirection=ascending&sortKey=timeleft&includeUnknownMovieItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id) | .movieId')
-      arrItemData=$(curl -s "$arrUrl/api/v3/movie/$arrItemId?apikey=$arrApiKey")
-      onlineSourceId="$(echo "$arrItemData" | jq -r ".tmdbId")"
-      if [ -z "$onlineSourceId" ]; then
-          log "Could not get Movie data from $arrApp, skip..."
-          tagging="-nt"
-          onlineData=""
-          audioLang=""
-      else
-          arrItemLanguage="$(echo "$arrItemData" | jq -r ".originalLanguage.name")"
-          log "Radarr Movie ID = $arrItemId :: Language: $arrItemLanguage"
-          log "TMDB ID = $onlineSourceId"
-          onlineData="-tmdb $onlineSourceId"
-          if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
+    if echo "$filePath" | grep "radarr" | read; then
+        arrItemId=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=75&sortDirection=ascending&sortKey=timeleft&includeUnknownMovieItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id) | .movieId')
+        arrItemData=$(curl -s "$arrUrl/api/v3/movie/$arrItemId?apikey=$arrApiKey")
+        onlineSourceId="$(echo "$arrItemData" | jq -r ".tmdbId")"
+        if [ -z "$onlineSourceId" ]; then
+            log "Could not get Movie data from $arrApp, skip..."
+            tagging="-nt"
+            onlineData=""
             audioLang=""
-          else
-            arrLanguage
-            audioLang="$arrItemLang"
-          fi
-      fi        
-  fi
-  touch "/config/scripts/arr-info"
+            if [ "$alerted" == "no" ]; then
+              alerted="yes"
+              log "STATUS :: ARR APP BUSY :: Pausing/waiting for successful download lookup from ARR app..."
+            fi
+            cotinue
+        else
+            arrItemLanguage="$(echo "$arrItemData" | jq -r ".originalLanguage.name")"
+            log "Radarr Movie ID = $arrItemId :: Language: $arrItemLanguage"
+            log "TMDB ID = $onlineSourceId"
+            onlineData="-tmdb $onlineSourceId"
+            if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
+              audioLang=""
+            else
+              arrLanguage
+              audioLang="$arrItemLang"
+            fi
+        fi        
+    fi
+    touch "/config/scripts/arr-info"
+    break
+  done
 }
 
 VerifyApiAccess () {
@@ -512,8 +550,9 @@ MAIN () {
   log "Script: Settings :: requireLanguageMatch = $requireLanguageMatch"
   log "Script: Settings :: failVideosWithUnknownAudioTracks = $failVideosWithUnknownAudioTracks"
   log "Script: Settings :: keepUnknownAudioIfDefaultLangMatch = $keepUnknownAudioIfDefaultLangMatch"
-  log "Script: Settings :: requireSubs = $requireSubs"
   log "Script: Settings :: forceRemuxToMkv = $forceRemuxToMkv"
+  log "Script: Settings :: requireSubsForMovies = $requireSubsForMovies"
+  log "Script: Settings :: requireSubsForTv = $requireSubsForTv"
 
   arrApiKeySelect
   # log "$filePath :: $downloadId :: Processing"
