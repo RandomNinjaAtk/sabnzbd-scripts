@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="7.7"
+scriptVersion="7.8"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 keepUnknownAudioIfDefaultLangMatch="true"
@@ -434,7 +434,7 @@ Cleaner () {
 
 ArrDownloadInfo () {
   #ArrWaitForTaskCompletion
-  if [ -f "/config/scripts/skip" ]; then
+  if [ -f "/config/scripts/arr-info" ]; then
     return
   fi
   arrRefreshMonitoredDownloads
