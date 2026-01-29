@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="7.9"
+scriptVersion="8.0"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 keepUnknownAudioIfDefaultLangMatch="true"
@@ -443,7 +443,7 @@ ArrDownloadInfo () {
   until false
   do
     if echo "$filePath" | grep "sonarr" | read; then
-        arrQueueItemData=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=75&sortDirection=ascending&sortKey=timeleft&includeUnknownSeriesItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id)')
+        arrQueueItemData=$(curl -s "$arrUrl/api/v3/queue?pageSize=10000&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id)')
         arrSeriesId="$(echo $arrQueueItemData | jq -r .seriesId | sort -u)"				
         if [ -z "$arrSeriesId" ]; then
             onlineData=""
@@ -472,7 +472,7 @@ ArrDownloadInfo () {
     fi
 
     if echo "$filePath" | grep "radarr" | read; then
-        arrItemId=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=75&sortDirection=ascending&sortKey=timeleft&includeUnknownMovieItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id) | .movieId')
+        arrItemId=$(curl -s "$arrUrl/api/v3/queue?pageSize=10000&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id) | .movieId')
         arrItemData=$(curl -s "$arrUrl/api/v3/movie/$arrItemId?apikey=$arrApiKey")
         onlineSourceId="$(echo "$arrItemData" | jq -r ".tmdbId")"
         if [ -z "$onlineSourceId" ]; then
