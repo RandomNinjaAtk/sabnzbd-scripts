@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="8.2"
+scriptVersion="8.3"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 keepUnknownAudioIfDefaultLangMatch="true"
@@ -135,7 +135,6 @@ VideoLanguageCheck () {
       if [ "$videoUnknownAudioTracksNull" == "null" ] || [ $videoUnknownAudioTracksCount -ne 0 ]; then
         if [ "$keepUnknownAudioIfDefaultLangMatch" == "true" ]; then
           if [ ! -f "/config/scripts/arr-info" ]; then
-            VerifyApiAccess
             ArrDownloadInfo
           fi
           if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
@@ -433,6 +432,7 @@ Cleaner () {
 }
 
 ArrDownloadInfo () {
+  VerifyApiAccess
   #ArrWaitForTaskCompletion
   if [ -f "/config/scripts/arr-info" ]; then
     return
@@ -580,7 +580,6 @@ MAIN () {
   fi
   if [ "$skipRemux" == "false" ]; then
     if [ ! -f "/config/scripts/arr-info" ]; then
-      VerifyApiAccess
       ArrDownloadInfo
     fi
     MkvMerge "true"
