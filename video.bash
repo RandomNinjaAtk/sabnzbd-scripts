@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="8.3"
+scriptVersion="8.4"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 keepUnknownAudioIfDefaultLangMatch="true"
@@ -557,6 +557,7 @@ MAIN () {
   log "Script: Settings :: forceRemuxToMkv = $forceRemuxToMkv"
   log "Script: Settings :: requireSubsForMovies = $requireSubsForMovies"
   log "Script: Settings :: requireSubsForTv = $requireSubsForTv"
+  log "Script: Settings :: onlyLanguageCheck = $onlyLanguageCheck"
 
   arrApiKeySelect
   # log "$filePath :: $downloadId :: Processing"
@@ -564,34 +565,37 @@ MAIN () {
     rm "/config/scripts/arr-info"
   fi
   VideoFileCheck
-  if find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mp4\|avi\)" | read; then
-    MkvMerge "false"
-    VideoFileCheck
-    skipStatistics="true"
+  if [ "$onlyLanguageCheck" != "true" ]; then
+    if find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mp4\|avi\)" | read; then
+      MkvMerge "false"
+      VideoFileCheck
+      skipStatistics="true"
+    fi
   fi
   VideoLanguageCheck
   VideoFileCheck
-  if [ -f "/config/scripts/skip" ]; then
-    skipRemux="true"
-    rm "/config/scripts/skip"
-    if [ "$forceRemuxToMkv" == "true" ]; then
-      skipRemux="false"
+  if [ "$onlyLanguageCheck" != "true" ]; then
+    if [ -f "/config/scripts/skip" ]; then
+      skipRemux="true"
+      rm "/config/scripts/skip"
+      if [ "$forceRemuxToMkv" == "true" ]; then
+        skipRemux="false"
+      fi
     fi
-  fi
-  if [ "$skipRemux" == "false" ]; then
-    if [ ! -f "/config/scripts/arr-info" ]; then
-      ArrDownloadInfo
+    if [ "$skipRemux" == "false" ]; then
+      if [ ! -f "/config/scripts/arr-info" ]; then
+        ArrDownloadInfo
+      fi
+      MkvMerge "true"
+      VideoFileCheck
+      skipStatistics="true"
     fi
-    MkvMerge "true"
-    VideoFileCheck
-    skipStatistics="true"
+    if [ -f "/config/scripts/arr-info" ]; then
+      rm "/config/scripts/arr-info"
+    fi
+    MkvPropEdit "$skipStatistics"
+    Cleaner
   fi
-  if [ -f "/config/scripts/arr-info" ]; then
-    rm "/config/scripts/arr-info"
-  fi
-  MkvPropEdit "$skipStatistics"
-  Cleaner
-
 
   log "Refreshing $arrApp download queue to notify and import completed downloads"
 
