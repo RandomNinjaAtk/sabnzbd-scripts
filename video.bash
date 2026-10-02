@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="9.2"
+scriptVersion="10.0"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 keepUnknownAudioIfDefaultLangMatch="true"
@@ -531,6 +531,25 @@ VerifyApiAccess () {
   log "ARR API CHECK :: Complete!"
 }
 
+
+VideoSmaProcess (){
+  log "SMA REMUXING :: Performing SMA Remuxing"
+  count=0
+  tempFile=""
+  fileCount=$(find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" | wc -l)
+  log "SMA REMUXING :: Processing ${fileCount} video files with SMA..."
+  find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" -print0 | while IFS= read -r -d '' file; do
+    count=$(($count+1))
+    # Manual run of Sickbeard MP4 Automator
+		if python3 /config/scripts/sma/manual.py --config "/config/scripts/autoProcess.ini" -i "$file" -nt; then
+			log "SMA REMUXING :: $count of $fileCount :: Complete!"
+		else
+			log "SMA REMUXING :: $count of $fileCount :: ERROR :: SMA Processing Error"
+			rm "$file" && log "SMA REMUXING :: INFO: deleted: $fileName"
+		fi
+  done
+}
+
 MAIN () {
   SECONDS=0
   logfileSetup
@@ -586,8 +605,11 @@ MAIN () {
     if [ -f "/config/scripts/arr-info" ]; then
       rm "/config/scripts/arr-info"
     fi
-    MkvPropEdit "$skipStatistics"
+    #MkvPropEdit "$skipStatistics"
     Cleaner
+    VideoSmaProcess
+    Cleaner
+    VideoFileCheck
   fi
 
   arrRefreshMonitoredDownloads
