@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="9.1"
+scriptVersion="9.2"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 keepUnknownAudioIfDefaultLangMatch="true"
@@ -306,6 +306,7 @@ ArrWaitForTaskCompletion () {
 }
 
 arrRefreshMonitoredDownloads () {
+  log "ARR NOTIFICATION :: Refreshing $arrApp download queue..."
   refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
 }
 
@@ -420,7 +421,7 @@ arrApiKeySelect () {
 
 Cleaner () { 
   if find "$filePath" -mindepth 1 -type f -not -iname "*.mkv" | read; then
-    log "Cleaner :: Removing all Non MKV Files"
+    log "CLEANER :: Removing all Non MKV Files"
     find "$filePath" -mindepth 1 -type f -not -iname "*.mkv" -delete
   fi
   if find "$filePath" -mindepth 1 -type d -empty | read; then
@@ -589,12 +590,10 @@ MAIN () {
     Cleaner
   fi
 
-  log "Refreshing $arrApp download queue to notify and import completed downloads"
-
+  arrRefreshMonitoredDownloads
   duration=$SECONDS
   durationOutput="$(printf '%dd:%dh:%dm:%ds\n' $((duration/86400)) $((duration%86400/3600)) $((duration%3600/60)) $((duration%60)))"
   echo "Completed in $durationOutput!"
-  arrRefreshMonitoredDownloads
 }
 
 if echo "$1" | grep "sonarr" | read; then
