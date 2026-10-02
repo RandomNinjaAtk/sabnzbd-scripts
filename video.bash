@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="8.5"
+scriptVersion="8.9"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 keepUnknownAudioIfDefaultLangMatch="true"
@@ -37,7 +37,6 @@ VideoFileCheck () {
   # check for video files
   if find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" | read; then
     log "Video Files Found, continuing..."
-    sleep 0.1
   else
     Cleaner
     echo "SCRIPT ERROR :: No video files found for processing"
@@ -552,7 +551,7 @@ MAIN () {
   log "SCRIPT :: SETTINGS :: requireSubsForTv = $requireSubsForTv"
   log "SCRIPT :: SETTINGS :: onlyLanguageCheck = $onlyLanguageCheck"
   arrApiKeySelect
-  
+  VerifyApiAccess
   # log "$filePath :: $downloadId :: Processing"
   if [ -f "/config/scripts/arr-info" ]; then
     rm "/config/scripts/arr-info"
@@ -597,5 +596,17 @@ MAIN () {
   echo "Completed in $durationOutput!"
   arrRefreshMonitoredDownloads
 }
+
+if echo "$1" | grep "sonarr" | read; then
+  sleep 0.01
+elif echo "$1" | grep "sonarr-anime" | read; then
+  sleep 0.01
+elif echo "$1" | grep "radarr" | read; then
+    sleep 0.01
+else
+  echo "ERROR :: Job Failed :: Valid category not found"
+  exit 1
+fi
+
 MAIN "$1"
 exit
