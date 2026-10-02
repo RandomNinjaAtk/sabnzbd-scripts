@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="9.0"
+scriptVersion="9.1"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 keepUnknownAudioIfDefaultLangMatch="true"
@@ -424,14 +424,14 @@ Cleaner () {
     find "$filePath" -mindepth 1 -type f -not -iname "*.mkv" -delete
   fi
   if find "$filePath" -mindepth 1 -type d -empty | read; then
-    log "Cleaner :: Removing Empty Folders"
+    log "CLEANER :: Removing Empty Folders"
     find "$filePath" -mindepth 1 -type d -empty -delete
   fi
 }
 
 ArrDownloadInfo () {
   VerifyApiAccess
-  ArrWaitForTaskCompletion
+  #ArrWaitForTaskCompletion
   if [ -f "/config/scripts/arr-info" ]; then
     return
   fi
