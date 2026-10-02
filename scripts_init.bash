@@ -57,6 +57,10 @@ fi
 echo "Downloading Video script: /config/scripts/video.bash"
 curl "https://raw.githubusercontent.com/RandomNinjaAtk/sabnzbd-scripts/refs/heads/master/video.bash" -o /config/scripts/video.bash
 
+
+echo "Downloading SMA config: /config/scripts/autoProcess.ini"
+curl "https://raw.githubusercontent.com/RandomNinjaAtk/sabnzbd-scripts/refs/heads/master/video.bash" -o /config/scripts/autoProcess.ini
+
 # Set Permissions
 chmod 777 -R /config/scripts
 
