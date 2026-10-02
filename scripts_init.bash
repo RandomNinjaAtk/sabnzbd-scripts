@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-version="1.0"
+version="2.0"
 
 installDependencies () {
   echo "Installing script dependencies...."
@@ -15,6 +15,30 @@ installDependencies () {
       ffmpeg
     echo "done"
   fi
+
+	# Delete SMA Folder
+	if [ -d /config/scripts/sma ]; then
+	  rm -rf /config/scripts/sma
+	fi
+
+	# Create SMA Folder
+	if [ ! -d /config/scripts/sma ]; then
+	  mkdir -p /config/scripts/sma
+	  chmod 777 /config/scripts/sma
+	fi
+	
+	echo "************ setup directory ************"
+	mkdir -p /config/scripts/sma
+	echo "************ download repo ************"
+	git clone https://github.com/mdhiggins/sickbeard_mp4_automator.git /config/scripts/sma
+	mkdir -p /config/scripts/sma/config
+	echo "************ create logging file ************"
+	mkdir -p /config/scripts/sma/config
+	touch /config/scripts/sma/config/sma.log
+	echo "************ install pip dependencies ************"
+	pip install --upgrade pip --no-cache-dir --break-system-packages
+	pip install -r /config/scripts/sma/setup/requirements.txt --no-cache-dir --break-system-packages
+	chmod 777 -R /config/scripts/sma
 }
 
 installDependencies
