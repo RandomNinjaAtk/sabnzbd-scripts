@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-version="2.0"
+version="2.1"
 
 installDependencies () {
   echo "Installing script dependencies...."
@@ -59,7 +59,7 @@ curl "https://raw.githubusercontent.com/RandomNinjaAtk/sabnzbd-scripts/refs/head
 
 
 echo "Downloading SMA config: /config/scripts/autoProcess.ini"
-curl "https://raw.githubusercontent.com/RandomNinjaAtk/sabnzbd-scripts/refs/heads/master/video.bash" -o /config/scripts/autoProcess.ini
+curl "https://raw.githubusercontent.com/RandomNinjaAtk/sabnzbd-scripts/refs/heads/master/autoProcess.ini" -o /config/scripts/autoProcess.ini
 
 # Set Permissions
 chmod 777 -R /config/scripts
