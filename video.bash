@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="8.4"
+scriptVersion="8.5"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 keepUnknownAudioIfDefaultLangMatch="true"
@@ -41,7 +41,6 @@ VideoFileCheck () {
   else
     Cleaner
     echo "SCRIPT ERROR :: No video files found for processing"
-    arrRefreshMonitoredDownloads
     arrRefreshMonitoredDownloads
     exit 1
   fi
@@ -417,7 +416,7 @@ arrApiKeySelect () {
     arrApp="Radarr"
     arrUrl="$radarrUrl" # Set category in SABnzbd to: radarr
     arrApiKey="$radarrApiKey" # Set category in SABnzbd to: radarr
-fi
+  fi
 }
 
 Cleaner () { 
@@ -433,7 +432,7 @@ Cleaner () {
 
 ArrDownloadInfo () {
   VerifyApiAccess
-  #ArrWaitForTaskCompletion
+  ArrWaitForTaskCompletion
   if [ -f "/config/scripts/arr-info" ]; then
     return
   fi
@@ -518,12 +517,7 @@ VerifyApiAccess () {
     arrApiTest=""
     arrApiVersion=""
     if [ -z "$arrApiTest" ]; then
-      arrApiVersion="v3"
-      arrApiTest="$(curl -s "$arrUrl/api/$arrApiVersion/system/status?apikey=$arrApiKey" | jq -r .instanceName)"
-    fi
-    if [ -z "$arrApiTest" ]; then
-      arrApiVersion="v1"
-      arrApiTest="$(curl -s "$arrUrl/api/$arrApiVersion/system/status?apikey=$arrApiKey" | jq -r .instanceName)"
+      arrApiTest="$(curl -s "$arrUrl/api/v3/health?apikey=$arrApiKey" | jq -r)"
     fi
     if [ ! -z "$arrApiTest" ]; then
       break
@@ -532,7 +526,6 @@ VerifyApiAccess () {
         alerted="yes"
         log "STATUS :: $arrApp is not ready, sleeping until valid response..."
       fi
-      sleep 1
     fi
   done
   log "STATUS :: Done"
@@ -547,19 +540,19 @@ MAIN () {
   downloadId="$SAB_NZO_ID"
   skipRemux="false"
   skipStatistics="false"
-  log "Script: Name :: $scriptName"
-  log "Script: Version :: $scriptVersion"
-  log "Script: Settings :: videoLanguages = $videoLanguages"
-  log "Script: Settings :: defaultLanguage = $defaultLanguage"
-  log "Script: Settings :: requireLanguageMatch = $requireLanguageMatch"
-  log "Script: Settings :: failVideosWithUnknownAudioTracks = $failVideosWithUnknownAudioTracks"
-  log "Script: Settings :: keepUnknownAudioIfDefaultLangMatch = $keepUnknownAudioIfDefaultLangMatch"
-  log "Script: Settings :: forceRemuxToMkv = $forceRemuxToMkv"
-  log "Script: Settings :: requireSubsForMovies = $requireSubsForMovies"
-  log "Script: Settings :: requireSubsForTv = $requireSubsForTv"
-  log "Script: Settings :: onlyLanguageCheck = $onlyLanguageCheck"
-
+  log "SCRIPT :: NAME :: $scriptName"
+  log "SCRIPT :: VERSION :: $scriptVersion"
+  log "SCRIPT :: SETTINGS :: videoLanguages = $videoLanguages"
+  log "SCRIPT :: SETTINGS :: defaultLanguage = $defaultLanguage"
+  log "SCRIPT :: SETTINGS :: requireLanguageMatch = $requireLanguageMatch"
+  log "SCRIPT :: SETTINGS :: failVideosWithUnknownAudioTracks = $failVideosWithUnknownAudioTracks"
+  log "SCRIPT :: SETTINGS :: keepUnknownAudioIfDefaultLangMatch = $keepUnknownAudioIfDefaultLangMatch"
+  log "SCRIPT :: SETTINGS :: forceRemuxToMkv = $forceRemuxToMkv"
+  log "SCRIPT :: SETTINGS :: requireSubsForMovies = $requireSubsForMovies"
+  log "SCRIPT :: SETTINGS :: requireSubsForTv = $requireSubsForTv"
+  log "SCRIPT :: SETTINGS :: onlyLanguageCheck = $onlyLanguageCheck"
   arrApiKeySelect
+  
   # log "$filePath :: $downloadId :: Processing"
   if [ -f "/config/scripts/arr-info" ]; then
     rm "/config/scripts/arr-info"
@@ -602,11 +595,7 @@ MAIN () {
   duration=$SECONDS
   durationOutput="$(printf '%dd:%dh:%dm:%ds\n' $((duration/86400)) $((duration%86400/3600)) $((duration%3600/60)) $((duration%60)))"
   echo "Completed in $durationOutput!"
-
-  # Actually perform the Arr App Download Queue refresh here as the very last step....
   arrRefreshMonitoredDownloads
-  arrRefreshMonitoredDownloads  
 }
-
 MAIN "$1"
 exit
